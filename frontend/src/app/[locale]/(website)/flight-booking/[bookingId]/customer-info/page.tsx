@@ -30,10 +30,6 @@ export default function CustomerFlightBookingPage() {
   useEffect(() => {
     if (!confirmPriceState || !flSearchParams || !storedFlightId) {
       console.warn('Missing flight booking data in store');
-      // You can decide what to do:
-      // Option A: redirect back to search
-      // Option B: show error message
-      // Option C: just disable form / show skeleton
       setIsValidSession(false);
     }
 

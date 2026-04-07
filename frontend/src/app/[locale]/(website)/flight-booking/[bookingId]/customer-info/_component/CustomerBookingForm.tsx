@@ -44,29 +44,6 @@ interface ICustomerBookingFormProps {
   departureDate?: Date;
 }
 
-// type TBookingFormInput = {
-//   passengers: Array<{
-//     passengerType: 'adult' | 'child';
-//     title: 'Mr' | 'Mrs' | 'Ms' | 'Miss' | 'Mstr';
-//     email: string;
-//     phone_number: string;
-//     firstName: string;
-//     lastName: string;
-//     gender: 'Male' | 'Female';
-//     dateOfBirth?: string | Date;
-//     passportNumber: string;
-//     issuingDate?: string | Date;
-//     passportExpiry?: string | Date;
-//     nationalityCountry: string;
-//     issuingCountry: string;
-//     holder: boolean;
-//   }>;
-//   contact: {
-//     email: string;
-//     phone_number: string;
-//   };
-// };
-
 const titleOptions: RadioOption[] = [
   {
     value: 'Mr',
@@ -212,44 +189,29 @@ const CustomerBookingForm = ({
         description: 'Flight Booking Created!',
       });
 
-      // 1️⃣ Create booking in your backend
-      // const bookingRes = await fetch('/api/booking/create', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({
-      //     flightId,
-      //     totalAmount,
-      //     form: parsed,
-      //   }),
-      // });
-
-      // const bookingData = await bookingRes.json();
-      // if (!bookingRes.ok) {
-      //   throw new Error(bookingData.error);
-      // }
-
-      //// 2️⃣ Create Stripe session
-      // const stripeRes = await fetch('/api/stripe/checkout-session', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({
-      //     bookingId: bookingData.bookingId,
-      //   }),
-      // });
-
-      // const { sessionId } = await stripeRes.json();
-
-      // 3️⃣ Redirect to Stripe Checkout
-      // const stripe = await stripePromise;
-
-      // if (!stripe) throw new Error('Stripe failed to load');
-
-      // await stripe.redirectToCheckout({ sessionId });
     } catch (err) {
       const message = getErrorMessage(err);
       console.error(`Book Ticket error: ${message}`);
     }
   };
+
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+   useEffect(() => {
+      const checkAuth = () => {
+        // Check for 'isLoggedIn=true' instead of 'token='
+        const cookies = document.cookie.split(';');
+        const isUserLoggedIn = cookies.some((item) => item.trim().startsWith('isLoggedIn=true'));
+        
+        setIsLoggedIn(isUserLoggedIn);
+      };
+
+      checkAuth();
+      
+      // This listener helps if the user logs out in another tab
+      window.addEventListener('focus', checkAuth); 
+      return () => window.removeEventListener('focus', checkAuth);
+    }, []);
 
   return (
     <Form {...form}>
@@ -413,6 +375,7 @@ const CustomerBookingForm = ({
             </Accordion>
           </CardContent>
         </Card>
+        {!isLoggedIn ? (
         <Card>
           <CardHeader className='flex flex-row items-center justify-between'>
             <CardTitle>
@@ -476,6 +439,7 @@ const CustomerBookingForm = ({
             />
           </CardContent>
         </Card>
+        ) : ()}
         <Button
           type='submit'
           size='lg'

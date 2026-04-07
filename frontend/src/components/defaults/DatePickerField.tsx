@@ -62,11 +62,14 @@ export default function DatePickerField<T extends FieldValues>({
                 </PopoverTrigger>
                 <PopoverContent className='w-auto p-0'>
                   <Calendar
-                    mode='single'
-                    selected={value}
-                    onSelect={handleChange}
-                    disabled={disablePrevious ? { before: new Date() } : false}
-                  />
+                      mode='single'
+                      selected={value}
+                      onSelect={handleChange}
+                      disabled={disablePrevious ? { before: new Date() } : false}
+                      captionLayout="dropdown"     
+                      fromYear={1995}              
+                      toYear={2100}                
+                    />
                 </PopoverContent>
               </Popover>
             </div>

@@ -9,6 +9,8 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import SVGIcon from '@/components/defaults/SVGIcons';
+import { registerService } from '@/app/service/domain/auth/auth.service';
+import { ApiError } from '@/lib/utils/errors/api-error.util';
 
 // Zod Schema for validation
 const signupSchema = z
@@ -36,37 +38,29 @@ const RegistrationForm = () => {
   });
 
   const onSubmit = async (data: SignupFormValues) => {
-	  try {
-		const payload = {
-		  firstName: data.firstName,
-		  lastName: data.lastName,
-		  email: data.email,
-		  password: data.password,
-		};
+    try {
+      const payload = {
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email,
+        password: data.password,
+      };
 
-		const response = await fetch('http://localhost:5000/api/auth/register', {
-		  method: 'POST',
-		  headers: {
-		    'Content-Type': 'application/json',
-		  },
-		  body: JSON.stringify(payload),
-		});
+      const result = await registerService(payload);
 
-		const result = await response.json();
+      console.log('Registration successful:', result);
 
-		if (!response.ok) {
-		  console.error('Registration failed:', result);
-		  alert(result.message || 'Registration failed');
-		  return;
-		}
-
-		console.log('Registration successful:', result);
-		alert('Registration successful! You can now login.');
-	  } catch (error) {
-		console.error('Network or server error:', error);
-		alert('An error occurred. Please try again.');
-	  }
-	};
+      alert('Registration successful! You can now login.');
+    } catch (error) {
+      if (error instanceof ApiError) {
+        console.error('Registration failed:', error.message);
+        alert(error.message);
+      } else {
+        console.error('Unexpected error:', error);
+        alert('Something went wrong');
+      }
+    }
+  };
 
   useEffect(() => {
     gsap.fromTo(cardRef.current, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' });

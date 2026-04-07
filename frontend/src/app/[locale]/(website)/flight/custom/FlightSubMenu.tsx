@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import FlightSession from '../../(Index)/custom/FlightSession';
+import FlightSession from '@/components/flight/FlightSession';
 import { ServerIndicator } from '@/components/defaults/server-controls/ServerIndicator';
 
 const FlightSubMenu = () => {

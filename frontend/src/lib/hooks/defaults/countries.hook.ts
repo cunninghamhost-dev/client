@@ -1,3 +1,4 @@
+//frontend/src/lib/hooks/defaults/countries.hook.ts
 import { useQuery, UseQueryOptions } from '@tanstack/react-query';
 import { z } from 'zod';
 import { fetchJSON } from '@/lib/utils/server/response.util';

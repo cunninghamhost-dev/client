@@ -1,3 +1,4 @@
+//src/components/website/HeroMenuContent.tsx
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
@@ -5,7 +6,7 @@ import { FaCar, FaHome, FaPlaneDeparture } from 'react-icons/fa';
 import { TbSocial } from 'react-icons/tb';
 import { gsap } from 'gsap';
 import { Tabs, TabsList, TabsTrigger } from '../ui/tabs';
-import FlightSession from '@/app/[locale]/(website)/(Index)/custom/FlightSession';
+import FlightSession from '@/components/flight/FlightSession';
 
 // interface ICustomTabPanelProps {
 //   tabs: ITabItem[];
@@ -76,6 +77,17 @@ const HeroMenuContent = ({ serviceType, isImage }: { serviceType: number; isImag
               </TabsTrigger>
             ))}
           </TabsList>
+          <div className="mt-4 w-full">
+              {tabs.map(({ value, content }) => (
+                <div
+                  key={value}
+                  ref={(el) => (contentRefs.current[value] = el)}
+                  className={activeTab === value ? 'block' : 'hidden'}
+                >
+                  {content}
+                </div>
+              ))}
+            </div>
         </Tabs>
       </div>
     </div>

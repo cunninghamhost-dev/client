@@ -11,7 +11,9 @@ import type { AuthResponse, RegisterInput, LoginInput, JwtPayload } from "./auth
 */
 
 export async function register(data: RegisterInput): Promise<AuthResponse> {
-  const { name, email, password } = data;
+  const { firstName, lastName, email, password } = data;
+
+  const name = `${firstName} ${lastName}`;
 
   // Check if user already exists
   const existingUser = await prisma.user.findUnique({
@@ -27,13 +29,14 @@ export async function register(data: RegisterInput): Promise<AuthResponse> {
 
   // Create user
   const user = await prisma.user.create({
-    data: {
-      name,
-      email,
-      password: hashedPassword,
-      role: "USER",
-    },
-  });
+      data: {
+        firstName,   
+        lastName,    
+        email,
+        password: hashedPassword,
+        role: "USER",
+      }
+    });
 
   // Generate JWT
   const token = generateToken({

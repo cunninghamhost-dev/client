@@ -1,7 +1,7 @@
 import React from 'react';
 import { FaPlaneDeparture, FaHome, FaTrain, FaCar } from 'react-icons/fa';
 import { TbSocial } from 'react-icons/tb';
-import FlightSession from './FlightSession';
+import FlightSession from '@/components/flight/FlightSession';
 import HeroTabPanel from './HeroTabPanel';
 import HotelHomes from './HotelHomes';
 import CarRentals from './CarRentals';

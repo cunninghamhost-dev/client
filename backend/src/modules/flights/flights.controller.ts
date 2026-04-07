@@ -1,90 +1,140 @@
-// src/modules/flights/flights.controller.ts
 import type { Request, Response } from "express";
+import {
+  searchAirports,
+  searchFlights,
+  confirmPrice,
+  bookFlight,
+  getBookingDetails,
+  cancelBooking,
+  issueTicket,
+  searchMultiCityFlights,
+  getAirlines,
+} from "./flights.service";
 
-/**
- * GET /flights
- */
-export const getAllFlights = async (req: Request, res: Response) => {
-  res.json({
-    success: true,
-    message: "All flights fetched",
-  });
-};
-
-/**
- * GET /flights/:id
- */
-export const getFlightById = async (req: Request, res: Response) => {
-  const { id } = req.params;
-
-  res.json({
-    success: true,
-    message: `Flight ${id} fetched`,
-  });
-};
-
-/**
- * POST /flights
- */
-export const createFlight = async (req: Request, res: Response) => {
-  res.status(201).json({
-    success: true,
-    message: "Flight created",
-  });
-};
-
-/**
- * PATCH /flights/:id
- */
-export const updateFlight = async (req: Request, res: Response) => {
-  const { id } = req.params;
-
-  res.json({
-    success: true,
-    message: `Flight ${id} updated`,
-  });
-};
-
-/**
- * DELETE /flights/:id
- */
-export const deleteFlight = async (req: Request, res: Response) => {
-  const { id } = req.params;
-
-  res.json({
-    success: true,
-    message: `Flight ${id} deleted`,
-  });
-};
-
-/**
- * ✅ NEW: GET /flights/airports
- */
 export const getAirports = async (req: Request, res: Response) => {
   try {
     const keyword = String(req.query.keyword || "");
 
-    const response = await fetch(
-      `${process.env.TIQWA_BASE_URL}/airports?keyword=${encodeURIComponent(keyword)}`,
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.TIQWA_API_KEY}`,
-        },
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error("Tiqwa API request failed");
-    }
-
-    const data = await response.json();
+    const data = await searchAirports(keyword);
 
     res.json(data);
-  } catch (error) {
-    console.error("Airport fetch error:", error);
+  } catch (error: any) {
+    console.error("Airport fetch error:", error.message);
+
     res.status(500).json({
       success: false,
-      message: "Error fetching airports",
+      message: error.message,
     });
   }
 };
+
+export const getFlights = async (req: Request, res: Response) => {
+  try {
+    const { adults, cabin, departure_date, destination, origin } = req.query;
+
+    // Quick validation for required fields
+    if (!adults || !cabin || !departure_date || !destination || !origin) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Missing required search parameters: adults, cabin, departure_date, destination, and origin are required." 
+      });
+    }
+
+    const data = await searchFlights(req.query); 
+    res.json(data);
+  } catch (error: any) {
+    console.error("Flight search error:", error.message);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// backend/src/modules/flights/flights.controller.ts
+
+export const confirmFlightPrice = async (req: Request, res: Response) => {
+  try {
+    // Destructure the string out of req.params
+    const { flightId } = req.params; 
+
+    if (!flightId) {
+      return res.status(400).json({ message: "Flight ID is required" });
+    }
+
+    // Pass the STRING 'flightId' to the service
+    const data = await confirmPrice(flightId);
+
+    res.json(data);
+  } catch (error: any) {
+    console.error("Controller Error:", error.message);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const bookFlightController = async (req: Request, res: Response) => {
+  try {
+    const { flightId } = req.params;
+
+    const data = await bookFlight(flightId, req.body);
+
+    res.json(data);
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const getBooking = async (req: Request, res: Response) => {
+  try {
+    const { reference } = req.params;
+
+    const data = await getBookingDetails(reference);
+
+    res.json(data);
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const cancelFlight = async (req: Request, res: Response) => {
+  try {
+    const { reference } = req.params;
+
+    const data = await cancelBooking(reference);
+
+    res.json(data);
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const payForFlight = async (req: Request, res: Response) => {
+  try {
+    const { reference } = req.params;
+
+    const data = await issueTicket(reference);
+
+    res.json(data);
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const multiCitySearch = async (req: Request, res: Response) => {
+  try {
+    const data = await searchMultiCityFlights(req.body);
+
+    res.json(data);
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const getAirlinesController = async (req: Request, res: Response) => {
+  try {
+    const data = await getAirlines();
+
+    res.json(data);
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+

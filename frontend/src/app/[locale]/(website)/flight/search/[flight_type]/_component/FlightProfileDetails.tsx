@@ -90,7 +90,7 @@ const FlightProfileDetails: React.FC<IFlightCardProps> = ({ flight, onSelect }) 
                     key={`layover-${idx}`}
                     className='text-xs text-muted-foreground text-center py-1 mx-16 border-t border-dashed border-gray-200'
                   >
-                    Layover {formatDuration(segment.layover)} in {flight.outbound[idx].airport_to_details.city}
+                    Layover {formatDuration(segment.layover)} in {segment.city_to ?? 'Unknown'}
                   </div>
                 );
               }
@@ -114,8 +114,12 @@ const FlightProfileDetails: React.FC<IFlightCardProps> = ({ flight, onSelect }) 
                     <div className='space-y-0'>
                       {/* Departure time */}
                       <div className='font-semibold text-base lg:text-lg'>{parseTime(segment.departure_time)}</div>
-                      <div className='hidden lg:inline text-xs capitalize'>{`${segment.airport_from_details.city}(${segment.airport_from_details.iata_code})`}</div>
-                      <div className='inline lg:hidden text-xs capitalize'>{`${segment.airport_from_details.city}`}</div>
+                      <div className='hidden lg:inline text-xs capitalize'>
+                          {`${segment.airport_from_details.city ?? 'Unknown'} (${segment.airport_from ?? '---'})`}
+                        </div>
+                        <div className='inline lg:hidden text-xs capitalize'>
+                          {segment.city_from ?? 'Unknown'}
+                        </div>
                     </div>
                     <div className='flex items-center gap-2 flex-1'>
                       <div className='hidden lg:inline shrink-0 w-8 h-8 rounded-md overflow-hidden border bg-white shadow-sm'>
@@ -150,8 +154,12 @@ const FlightProfileDetails: React.FC<IFlightCardProps> = ({ flight, onSelect }) 
                       <div className='w-10 lg:w-14 font-semibold text-base lg:text-lg'>
                         {parseTime(segment.arrival_time)}
                       </div>
-                      <div className='hidden lg:inline text-xs capitalize'>{`${segment.airport_to_details.city}(${segment.airport_to_details.iata_code})`}</div>
-                      <div className='inline lg:hidden text-xs capitalize'>{`${segment.airport_to_details.city}`}</div>
+                      <div className='hidden lg:inline text-xs capitalize'>
+                          {`${segment.airport_to_details.city ?? 'Unknown'} (${segment.airport_to ?? '---'})`}
+                        </div>
+                        <div className='inline lg:hidden text-xs capitalize'>
+                          {segment.city_to ?? 'Unknown'}
+                        </div>
                     </div>
                   </div>
                 ))}

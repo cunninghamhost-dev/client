@@ -20,6 +20,23 @@ const TopNavigation = () => {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
 
   const t = useTranslations('nav');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+   useEffect(() => {
+      const checkAuth = () => {
+        // Check for 'isLoggedIn=true' instead of 'token='
+        const cookies = document.cookie.split(';');
+        const isUserLoggedIn = cookies.some((item) => item.trim().startsWith('isLoggedIn=true'));
+        
+        setIsLoggedIn(isUserLoggedIn);
+      };
+
+      checkAuth();
+      
+      // This listener helps if the user logs out in another tab
+      window.addEventListener('focus', checkAuth); 
+      return () => window.removeEventListener('focus', checkAuth);
+    }, []);
 
   useEffect(() => {
     const stickNavbar = () => {
@@ -89,19 +106,28 @@ const TopNavigation = () => {
             </div>
             {/* Auth Buttons */}
             <div className='flex items-center ml-8 space-x-8'>
-              {/* Language Dropdown */}
-              {/* <LanguageSwitcherField /> */}
               <LanguageSelection languages={LanguagesConstants} />
-              <button className='flex items-center space-x-2 px-3 py-2  text-gray-800 text-base hover:text-[#E63A24] transition-all duration-300 font-medium transform hover:scale-105'>
+              
+              <button className='flex items-center space-x-2 px-3 py-2 text-gray-800 text-base hover:text-[#E63A24] transition-all duration-300 font-medium transform hover:scale-105'>
                 <span className=' text-[14px]'>{t('actions.manageBookings')}</span>
               </button>
-              <Link
-                href={'/authentication'}
-                className='flex items-center space-x-2 px-3 py-2 bg-[#E63A24] text-white rounded-lg text-sm hover:bg-[#c12510] transition-all duration-300 font-normal shadow-lg hover:shadow-xl transform hover:scale-105'
-              >
-                <UserPlus className='w-4 h-4 group-hover:scale-110 transition-transform duration-300' />
-                <span>{t('actions.signInRegister')}</span>
-              </Link>
+
+              {!isLoggedIn ? (
+                <Link
+                  href={'/authentication'}
+                  className='flex items-center space-x-2 px-3 py-2 bg-[#E63A24] text-white rounded-lg text-sm hover:bg-[#c12510] transition-all duration-300 font-normal shadow-lg hover:shadow-xl transform hover:scale-105'
+                >
+                  <UserPlus className='w-4 h-4 group-hover:scale-110 transition-transform duration-300' />
+                  <span>{t('actions.signInRegister')}</span>
+                </Link>
+              ) : (
+                <Link
+                  href={'/dashboard'}
+                  className='flex items-center space-x-2 px-3 py-2 border border-[#E63A24] text-[#E63A24] rounded-lg text-sm hover:bg-red-50 transition-all duration-300 font-medium'
+                >
+                  <span>{t('links.dashboard') || 'Dashboard'}</span>
+                </Link>
+              )}
             </div>
           </motion.nav>
           {/* Mobile Menu Button */}
@@ -153,13 +179,20 @@ const TopNavigation = () => {
                 <button className='flex items-center space-x-2 px-3 py-2  text-gray-800 text-base hover:text-[#E63A24] transition-all duration-300 font-medium transform hover:scale-105'>
                   <span className=' text-[14px]'>{t('actions.manageBookings')}</span>
                 </button>
-                <Link
-                  href={'/authentication'}
-                  className='flex items-center w-1/2 space-x-2 px-3 py-2 bg-[#E63A24] text-white rounded-lg text-sm hover:bg-[#c12510] transition-all duration-300 font-normal shadow-lg hover:shadow-xl transform hover:scale-105'
-                >
-                  <UserPlus className='w-4 h-4 group-hover:scale-110 transition-transform duration-300' />
-                  <span>{t('actions.signInRegister')}</span>
-                </Link>
+                {!isLoggedIn ? (
+                  <Link
+                    href={'/authentication'}
+                    className='flex items-center w-1/2 space-x-2 px-3 py-2 bg-[#E63A24] text-white rounded-lg text-sm hover:bg-[#c12510] transition-all duration-300 font-normal shadow-lg hover:shadow-xl transform hover:scale-105'
+                  >
+                    <UserPlus className='w-4 h-4 group-hover:scale-110 transition-transform duration-300' />
+                    <span>{t('actions.signInRegister')}</span>
+                  </Link>
+                ) : (
+                  <Link href={'/dashboard'} className='block px-4 py-2 font-bold text-[#E63A24]'>
+                    {/* Use the translation key here */}
+                    {t('links.dashboard')} 
+                  </Link>
+                )}
               </div>
             </motion.div>
           )}

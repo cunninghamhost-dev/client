@@ -16,8 +16,9 @@ export const countrySearchSchema = z.object({
 export const CountryResponseSchema = z.object({
   id: z.string(),
   name: z.string(),
-  iso2: z.string(),
-  continent: ContinentEnum,
+  code: z.string(),      
+  continent: z.string(), 
+  flag: z.string().optional(),
 });
 
 export const CountryListResponseSchema = z.array(CountryResponseSchema);

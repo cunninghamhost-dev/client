@@ -5,7 +5,8 @@
 */
 
 export interface RegisterInput {
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   password: string;
 }

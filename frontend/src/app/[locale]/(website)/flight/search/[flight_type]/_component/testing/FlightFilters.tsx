@@ -42,9 +42,11 @@ const FlightFilters: React.FC<IFlightFiltersProps> = ({
     { value: 1, label: '1 stop' },
     { value: 2, label: '2+ stops' },
   ];
+
   return (
     <div className='space-y-6 p-6'>
       <Accordion type='multiple' className='w-full px-4' defaultValue={['price', 'stops']}>
+        {/* PRICE SECTION */}
         <AccordionItem value='price'>
           <AccordionTrigger className='hover:no-underline'>
             <div className='flex items-center gap-2'>
@@ -68,6 +70,8 @@ const FlightFilters: React.FC<IFlightFiltersProps> = ({
             </div>
           </AccordionContent>
         </AccordionItem>
+
+        {/* STOPS SECTION */}
         <AccordionItem value='stops'>
           <AccordionTrigger>
             <div className='flex items-center gap-2'>
@@ -89,6 +93,8 @@ const FlightFilters: React.FC<IFlightFiltersProps> = ({
             </div>
           </AccordionContent>
         </AccordionItem>
+
+        {/* AIRLINES SECTION */}
         <AccordionItem value='airlines'>
           <AccordionTrigger>
             <div className='flex items-center gap-2'>
@@ -114,6 +120,8 @@ const FlightFilters: React.FC<IFlightFiltersProps> = ({
             </ScrollArea>
           </AccordionContent>
         </AccordionItem>
+
+        {/* DURATION SECTION */}
         <AccordionItem value='duration'>
           <AccordionTrigger>
             <div className='flex items-center gap-2'>
@@ -136,29 +144,40 @@ const FlightFilters: React.FC<IFlightFiltersProps> = ({
             </div>
           </AccordionContent>
         </AccordionItem>
-        <AccordionItem value='refundable'>
-          <AccordionTrigger className='py-2'>
-            <div className='flex items-center space-x-2'>
+
+        {/* REFUNDABLE SECTION - FIXED NESTING */}
+        <AccordionItem value='refundable' className="border-b">
+          <div className="flex items-center px-2">
+            <div className='flex items-center space-x-2 py-2'>
               <Checkbox
                 id='refundable'
                 checked={filterState.refundableOnly}
                 onCheckedChange={(checked) => setRefundableOnly(!!checked)}
               />
-              <Label htmlFor='refundable' className='cursor-pointer'>
+              <Label htmlFor='refundable' className='cursor-pointer text-sm font-medium'>
                 Refundable only
               </Label>
             </div>
-          </AccordionTrigger>
-          <AccordionContent />
+            {/* This trigger now sits NEXT to the checkbox div, not around it */}
+            <AccordionTrigger className='py-2 flex-1 justify-end'>
+              <span className="sr-only">Toggle Details</span>
+            </AccordionTrigger>
+          </div>
+          <AccordionContent>
+            <p className="text-xs text-muted-foreground px-2 pb-2">
+              Only showing flights with flexible cancellation policies.
+            </p>
+          </AccordionContent>
         </AccordionItem>
       </Accordion>
+
       {onClear && (
-        <>
+        <div className="space-y-4">
           <Separator />
           <Button variant='outline' className='w-full' onClick={onClear}>
             Clear All Filters
           </Button>
-        </>
+        </div>
       )}
     </div>
   );

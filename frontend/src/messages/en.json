@@ -2,7 +2,8 @@
   "nav": {
     "links": {
       "blog": "Blog",
-      "support": "Support"
+      "support": "Support",
+      "dashboard": "Go to Dashboard" 
     },
     "search": {
       "placeholder": "Destination, attraction, hotel etc"

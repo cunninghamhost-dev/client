@@ -4,7 +4,6 @@ import 'slick-carousel/slick/slick-theme.css';
 
 import HeroSection from './HeroSection';
 import ExploreServices from './ExploreServices';
-//import TrendingFlight from './TrendingFlight';
 import FeatureDeals from './FeatureDeals';
 import RecomendedCars from './RecomendedCars';
 import PopularAttraction from './PopularAttraction';

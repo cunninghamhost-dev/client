@@ -19,7 +19,7 @@ import RadioGroupField from '@/components/defaults/RadioGroupField';
 import { TFlightFormSchema } from '@/lib/hooks/website/landing-page.hook';
 import { flightFormSchema } from '@/lib/schemas/website/landing-page.schema';
 import { CabinClassSchema } from '@/lib/schemas/enums/flight-types.enum';
-import { RHFLocationPicker } from './controls/location-picker-field';
+import { RHFLocationPicker } from '@/app/[locale]/(website)/(Index)/custom/controls/location-picker-field';
 import { getFormErrorMessages } from '@/lib/helper/get-form-error.helper';
 import { buildFlightSearchUrl, FlightSearchQuery } from '@/lib/types/flight-search/flight-search-url';
 import { parseFlightSearchParams } from '@/lib/types/flight-search/flight-search-parser';
@@ -61,7 +61,6 @@ const FlightSession = () => {
   useEffect(() => {
     const searchParamsProfile = Object.fromEntries(searchParams.entries()) as FlightSearchQuery;
     const parsed = parseFlightSearchParams(watch('flightType'), searchParamsProfile);
-    console.log('Flight Session flight type: ', parsed);
 
     if (Object.keys(parsed).length > 0) {
       flightForm.reset(parsed);

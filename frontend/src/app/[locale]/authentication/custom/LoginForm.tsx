@@ -9,6 +9,9 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import SVGIcon from '@/components/defaults/SVGIcons';
+import { loginUser } from '@/lib/api/auth.service';
+import { ApiError } from '@/lib/utils/errors/api-error.util';
+import { useRouter } from 'next/navigation';
 
 const loginSchema = z.object({
   email: z.string().email('Please enter a valid email address').nonempty('Email is required'),
@@ -18,6 +21,7 @@ const loginSchema = z.object({
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 const LoginForm = () => {
+
   const [otpStatus, setOtpStatus] = useState<boolean>(false);
   const cardRef = useRef(null);
   const {
@@ -32,37 +36,41 @@ const LoginForm = () => {
     setOtpStatus(!otpStatus); // Toggles the state
   };
 
+  const router = useRouter();
+
   const onSubmit = async (data: LoginFormValues) => {
-	  try {
-		const response = await fetch('http://localhost:5000/api/auth/login', {
-		  method: 'POST',
-		  headers: {
-		    'Content-Type': 'application/json',
-		  },
-		  body: JSON.stringify(data),
-		});
+      try {
+        const res = await fetch('http://localhost:5000/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+          credentials: 'include', // Important for cookies
+        });
 
-		if (!response.ok) {
-		  const errorData = await response.json();
-		  console.error('Login failed:', errorData.message || 'Unknown error');
-		  alert(errorData.message || 'Login failed');
-		  return;
-		}
+        const result = await res.json();
 
-		const result = await response.json();
-		console.log('Login successful:', result);
+        if (!res.ok) {
+          alert(result.message || 'Invalid Credentials');
+          return;
+        }
 
-		// Store token if returned by backend
-		if (result.token) {
-		  localStorage.setItem('authToken', result.token);
-		  // Optionally redirect user
-		  window.location.href = '/dashboard';
-		}
-	  } catch (error) {
-		console.error('Error connecting to API:', error);
-		alert('An error occurred while logging in.');
-	  }
+        // Refresh the page or use router.push to the LOCALE-prefixed dashboard
+        // 'window.location.href' is often safer for auth to ensure middleware picks up the new cookie
+        window.location.href = '/dashboard'; 
+        
+      } catch (error) {
+        console.error('Login error:', error);
+        alert('Server connection failed');
+      }
   };
+
+  useEffect(() => {
+    const token = localStorage.getItem('authToken');
+
+    if (token) {
+      router.push('/dashboard');
+    }
+  }, []);
 
   useEffect(() => {
     gsap.fromTo(cardRef.current, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' });

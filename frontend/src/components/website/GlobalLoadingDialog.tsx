@@ -1,8 +1,8 @@
-// src/components/website/GlobalLoadingDialog.tsx
 'use client';
 
 import { Loader2 } from 'lucide-react';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+// 1. Import DialogTitle
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface IGlobalLoadingDialogProps {
@@ -20,7 +20,13 @@ export function GlobalLoadingDialog({
 }: IGlobalLoadingDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className='bg-white/80 backdrop-blur-sm border-none shadow-2xl'>
+      <DialogContent showCloseButton={false} className='bg-white/80 backdrop-blur-sm border-none shadow-2xl'>
+        
+        {/* 2. Add this hidden Title for accessibility */}
+        <DialogTitle className="sr-only">
+          {display_text}
+        </DialogTitle>
+
         <AnimatePresence>
           {open && (
             <motion.div

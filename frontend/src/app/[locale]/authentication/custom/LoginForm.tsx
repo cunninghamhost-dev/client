@@ -9,8 +9,6 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import SVGIcon from '@/components/defaults/SVGIcons';
-import { loginUser } from '@/lib/api/auth.service';
-import { ApiError } from '@/lib/utils/errors/api-error.util';
 import { useRouter } from 'next/navigation';
 
 const loginSchema = z.object({
@@ -70,7 +68,7 @@ const LoginForm = () => {
     if (token) {
       router.push('/dashboard');
     }
-  }, []);
+  }, [router]);
 
   useEffect(() => {
     gsap.fromTo(cardRef.current, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' });

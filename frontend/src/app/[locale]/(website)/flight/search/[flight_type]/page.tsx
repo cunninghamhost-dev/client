@@ -3,7 +3,7 @@ import { FlightTypeEnum } from '@/lib/schemas/enums/flight-types.enum';
 import React from 'react';
 import FlightSearchClient from './FlightSearchClient';
 
-export default async function FlightSerachPage({
+export default async function FlightSearchPage({
   params,
 }: {
   params: Promise<{
@@ -15,7 +15,10 @@ export default async function FlightSerachPage({
 
   return (
     <section className='py-2'>
-      <FlightSearchClient locale={locale} flightType={flight_type as FlightTypeEnum} />
+      <FlightSearchClient
+        locale={locale}
+        flightType={flight_type as FlightTypeEnum}
+      />
     </section>
   );
 }

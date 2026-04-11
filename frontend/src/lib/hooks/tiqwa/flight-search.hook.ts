@@ -1,7 +1,23 @@
+//src/lib/hooks/tiqwa/flight-search.hook.ts
 import { useQuery } from '@tanstack/react-query';
-import { apiClient } from '@/lib/api/apiClient'; // Adjust path to your axios/fetch client
+import { apiClient } from '@/lib/api/apiClient';
 
-interface FlightSearchParams {
+export interface Flight {
+  id: string;
+  amount: number;
+  currency: string;
+  travelers_price: {
+    adult?: number;
+    child?: number;
+    infant?: number;
+  }[];
+}
+
+interface FlightSearchResponse {
+  data?: Flight[];
+}
+
+export interface FlightSearchParams {
   origin: string;
   destination: string;
   departure_date: string;
@@ -11,18 +27,27 @@ interface FlightSearchParams {
   infants: number;
   cabin: string;
 }
-export const useGetTiqwaFlightSearch = (params: any) => {
+
+export const useGetTiqwaFlightSearch = (params: FlightSearchParams) => {
   return useQuery({
-    queryKey: ['flights', params],
+    queryKey: ['flights', params.origin, params.destination, params.departure_date, params.return_date, params.adults, params.children, params.infants, params.cabin],
     queryFn: async () => {
-     
-      const response = await apiClient.get<any>('/flights/search', {
-        query: params,
-      });
+      // Convert params to Record<string, string | number>
+      const query = Object.entries(params).reduce((acc, [key, value]) => {
+        if (value !== undefined) acc[key] = value;
+        return acc;
+      }, {} as Record<string, string | number>);
 
-      console.log("📡 Backend Response:", response);
+      const response = await apiClient.get<FlightSearchResponse>(
+        '/flights/search',
+        {
+          query,
+        }
+      );
 
-      return response.data || response; 
+      console.log('📡 Backend Response:', response);
+
+      return response.data ?? [];
     },
     enabled: !!(params.origin && params.destination && params.departure_date),
   });

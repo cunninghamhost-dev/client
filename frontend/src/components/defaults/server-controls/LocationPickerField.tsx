@@ -21,7 +21,7 @@ export function LocationPickerField({ value, onSelect }: ILocationPickerProps) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<AirportListResponse>([]);
   const [loading, setLoading] = useState(false);
-  const [recent, setRecent] = useState<AirportListResponse>([]);
+  const [recent, setRecent] = useState<Airport[]>([]);
 
   const { debounced } = useDebounceControlFn(async (q: string) => {
     try {

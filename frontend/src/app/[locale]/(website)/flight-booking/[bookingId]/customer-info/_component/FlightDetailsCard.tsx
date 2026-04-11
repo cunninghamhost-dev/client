@@ -4,11 +4,11 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { TTiqwaConfirmPriceResponse } from '@/lib/schemas/server/tiqwa/response/confirm-price-response.schema';
+import { ConfirmPriceResponseData } from '@/lib/types/flight-booking/confirm-price.types';
 import FlightSegmentRow from './FlightSegmentRow';
 import { ArrowLeftRight } from 'lucide-react';
 
-const FlightDetailsCard = ({ data }: { data: TTiqwaConfirmPriceResponse }) => {
+const FlightDetailsCard = ({ data }: { data: ConfirmPriceResponseData }) => {
   const first = data.outbound[0];
   const last = data.outbound[data.outbound.length - 1];
   return (

@@ -81,7 +81,7 @@ const HeroMenuContent = ({ serviceType, isImage }: { serviceType: number; isImag
               {tabs.map(({ value, content }) => (
                 <div
                   key={value}
-                  ref={(el) => (contentRefs.current[value] = el)}
+                  ref={el => { contentRefs.current[value] = el; }}
                   className={activeTab === value ? 'block' : 'hidden'}
                 >
                   {content}

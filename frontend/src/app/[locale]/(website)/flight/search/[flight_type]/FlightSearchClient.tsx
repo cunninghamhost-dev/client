@@ -1,9 +1,8 @@
-// frontend/src/app/[locale]/(website)/flight/search/[flight_type]/FlightSerachClient.tsx
+// frontend/src/app/[locale]/(website)/flight/search/[flight_type]/FlightSechClient.tsx
 
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import { FlightTypeEnum } from '@/lib/schemas/enums/flight-types.enum';
 import FlightSearchResults from './FlightSearchResults';
 import { useGetTiqwaFlightSearch } from '@/lib/hooks/tiqwa/flight-search.hook';
 import { useState, useMemo } from 'react';
@@ -13,61 +12,88 @@ import { FlightSearchQuery } from '@/lib/types/flight-search/flight-search-url';
 import { buildFlightBookingUrl } from '@/lib/types/flight-booking/flight-booking-url';
 import { mapConfirmPriceError, useConfirmPriceHook } from '@/lib/hooks/tiqwa/confirm-price.hook';
 import { ConfirmPriceErrorDialog } from './_component/ConfirmPriceErrorDialog';
+import { mapFlightToDetails } from '@/lib/mappers/flight.mapper';
+import { FlightTypeEnum } from '@/lib/schemas/enums/flight-types.enum';
 
-type Props = {
+type FlightSearchClientProps = {
   locale: string;
   flightType: FlightTypeEnum;
 };
 
-export default function FlightSearchClient({ locale, flightType }: Props) {
+type ApiErrorShape = {
+	  response?: {
+		status?: number;
+		data?: unknown;
+	  };
+	  message?: string;
+	};
+	
+export default function FlightSearchClient({ locale, flightType }: FlightSearchClientProps) {
+  const isRoundTrip = flightType === 'round_trip';
   const [openLoader, setOpenLoader] = useState<boolean>(false);
   const [errorState, setErrorState] = useState<null | ReturnType<typeof mapConfirmPriceError>>(null);
   const searchParams = useSearchParams();
   const router = useRouter();
 
   const confirmPriceMutation = useConfirmPriceHook();
-
   const setFlightSearchParamState = useFlightBookingStore((s) => s.setFlightSearchParamState);
   const setConfirmPriceState = useFlightBookingStore((s) => s.setConfirmPriceState);
   const flightIdFromStore = useFlightBookingStore((s) => s.flightId);
+  
+  console.log(locale, isRoundTrip);
 
   // 1. Extract Search Query from URL
   const search: FlightSearchQuery = useMemo(() => ({
-      from: searchParams.get('from_code') || '',
-      to: searchParams.get('to_code') || '',
-      departure: searchParams.get('departure') || '',
-      return: searchParams.get('return') || '',
-      cabin: searchParams.get('cabin') || 'economy',
-      adult: searchParams.get('adult') || '1',
-      child: searchParams.get('child') || '0',
-      infant: searchParams.get('infant') || '0',
-  }), [searchParams]);
+	  from: searchParams.get('from_code') || '',
+	  to: searchParams.get('to_code') || '',
+	  departure: searchParams.get('departure') || '',
+	  return: searchParams.get('return') || '',
+	  cabin: searchParams.get('cabin') || 'economy',
+	  adult: searchParams.get('adult') || '1',
+	  child: searchParams.get('child') || '0',
+	  infant: searchParams.get('infant') || '0',
+
+	  // REQUIRED by FlightSearchQuery
+	  origin_country: searchParams.get('origin_country') || '',
+	  destination_country: searchParams.get('destination_country') || '',
+	  from_code: searchParams.get('from_code') || '',
+	  to_code: searchParams.get('to_code') || '',
+	}), [searchParams]);
 
   // 2. Hook into the refurbished Backend API
   // Ensure keys match: origin, destination, departure_date, adults, cabin
-  const { data: flightList, isLoading, isError, error } = useGetTiqwaFlightSearch({
-    origin: search.from,
-    destination: search.to,
-    departure_date: search.departure,
-    return_date: search.return || undefined,
-    adults: Number(search.adult),
-    children: Number(search.child),
-    infants: Number(search.infant),
-    cabin: search.cabin,
-  }, {
-      // Pass an options object to your hook (if it supports it)
-      enabled: !openLoader && !confirmPriceMutation.isPending 
-    });
+  const { from_code, to_code, departure, return: returnDate, cabin, adult, child, infant } = search;
+
+	const { data: flightList, isLoading, isError, error } = useGetTiqwaFlightSearch({
+	  origin: from_code,
+	  destination: to_code,
+	  departure_date: departure,
+	  return_date: returnDate || undefined,
+	  adults: Number(adult),
+	  children: Number(child),
+	  infants: Number(infant || '0'),
+	  cabin: cabin,
+	});
 
   const handleConfirm = (flightId: string) => {
     setOpenLoader(true);
     confirmPriceMutation.mutate(flightId, {
-      onError: (err: any) => {
-        setOpenLoader(false);
-        // Using common error mapping since ApiError might differ between environments
-        const statusCode = err?.response?.status || 500;
-        setErrorState(mapConfirmPriceError(statusCode, err));
-      },
+      onError: (err: unknown) => {
+		  setOpenLoader(false);
+
+		  let statusCode = 500;
+
+		  if (
+			err &&
+			typeof err === 'object' &&
+			'response' in err
+		  ) {
+			const apiError = err as ApiErrorShape;
+			statusCode = apiError.response?.status ?? 500;
+		  }
+
+		  setErrorState(mapConfirmPriceError(statusCode));
+		},
       onSuccess: (data) => {
         setOpenLoader(false);
         const reqKey = crypto.randomUUID();
@@ -114,11 +140,7 @@ export default function FlightSearchClient({ locale, flightType }: Props) {
       {/* 4. Display Results */}
       <FlightSearchResults 
           // Check if flightList is an array, or if it has a .data property
-          flights={
-            Array.isArray(flightList) 
-              ? flightList 
-              : (flightList?.data || [])
-          } 
+          flights={(flightList ?? []).map(mapFlightToDetails)} 
           onSelectFlight={handleConfirm} 
         />
 

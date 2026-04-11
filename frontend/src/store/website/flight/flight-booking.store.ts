@@ -1,15 +1,15 @@
 // store/flight-booking.store.ts
-import { TTiqwaConfirmPriceResponse } from '@/lib/schemas/server/tiqwa/response/confirm-price-response.schema';
+import { ConfirmPriceResponseData } from '@/lib/types/flight-booking/confirm-price.types';
 import { FlightSearchQuery } from '@/lib/types/flight-search/flight-search-url';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 interface IFlightBookingState {
   flightId: string | null;
-  confirmPriceState: TTiqwaConfirmPriceResponse | null;
+  confirmPriceState: ConfirmPriceResponseData | null;
   flightSearchUrl: string | null;
   flightSearchParamState: FlightSearchQuery | null;
-  setConfirmPriceState: (payload: TTiqwaConfirmPriceResponse, flightId: string) => void;
+  setConfirmPriceState: (payload: ConfirmPriceResponseData, flightId: string) => void;
   setFlightSearchParamState: (payload: FlightSearchQuery) => void;
   setFlightSearchUrl: (searchUrl: string) => void;
   resetFlightBooking: () => void;

@@ -1,6 +1,6 @@
 // src/lib/utils/recent-searches.util.ts
 
-import { AirportLocationValue } from '@/lib/types/server/airport.types';
+import { Airport } from '@/lib/types/server/airport.types';
 
 const STORAGE_KEY = 'recent_airport_searches';
 const MAX_ITEMS = 5;
@@ -8,12 +8,12 @@ const MAX_ITEMS = 5;
 /**
  * Get recent searches from localStorage
  */
-export function getRecentSearches(): AirportLocationValue[] {
+export function getRecentSearches(): Airport[] {
   if (typeof window === 'undefined') return [];
 
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? JSON.parse(stored) : [];
+    return stored ? (JSON.parse(stored) as Airport[]) : [];
   } catch {
     return [];
   }
@@ -22,7 +22,7 @@ export function getRecentSearches(): AirportLocationValue[] {
 /**
  * Add a new recent search
  */
-export function addRecentSearch(item: AirportLocationValue) {
+export function addRecentSearch(item: Airport) {
   if (typeof window === 'undefined') return;
 
   try {

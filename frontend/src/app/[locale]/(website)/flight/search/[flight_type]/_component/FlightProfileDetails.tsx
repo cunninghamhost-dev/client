@@ -90,7 +90,7 @@ const FlightProfileDetails: React.FC<IFlightCardProps> = ({ flight, onSelect }) 
                     key={`layover-${idx}`}
                     className='text-xs text-muted-foreground text-center py-1 mx-16 border-t border-dashed border-gray-200'
                   >
-                    Layover {formatDuration(segment.layover)} in {segment.city_to ?? 'Unknown'}
+                    Layover {formatDuration(segment.layover)} in {segment.airport_to_details.city ?? 'Unknown'}
                   </div>
                 );
               }
@@ -118,7 +118,7 @@ const FlightProfileDetails: React.FC<IFlightCardProps> = ({ flight, onSelect }) 
                           {`${segment.airport_from_details.city ?? 'Unknown'} (${segment.airport_from ?? '---'})`}
                         </div>
                         <div className='inline lg:hidden text-xs capitalize'>
-                          {segment.city_from ?? 'Unknown'}
+                          {segment.airport_from_details?.city ?? 'Unknown'}
                         </div>
                     </div>
                     <div className='flex items-center gap-2 flex-1'>
@@ -158,7 +158,7 @@ const FlightProfileDetails: React.FC<IFlightCardProps> = ({ flight, onSelect }) 
                           {`${segment.airport_to_details.city ?? 'Unknown'} (${segment.airport_to ?? '---'})`}
                         </div>
                         <div className='inline lg:hidden text-xs capitalize'>
-                          {segment.city_to ?? 'Unknown'}
+                          {segment.airport_to_details.city ?? 'Unknown'}
                         </div>
                     </div>
                   </div>

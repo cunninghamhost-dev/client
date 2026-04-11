@@ -13,6 +13,7 @@ export type FlightSearchQuery = {
   cabin: string;
   adult: string;
   child: string;
+  infant: string;
   from_code: string;
   to_code: string;
 };

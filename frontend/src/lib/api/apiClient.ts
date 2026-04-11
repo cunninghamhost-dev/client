@@ -1,6 +1,4 @@
 // frontend/src/lib/api/apiClient.ts
-import { ApiError } from '@/lib/utils/errors/api-error.util';
-
 export interface ApiOptions<TBody = unknown> {
   method?: 'GET' | 'POST' | 'PATCH' | 'DELETE' | 'PUT';
   query?: Record<string, string | number | boolean | undefined>;
@@ -8,21 +6,26 @@ export interface ApiOptions<TBody = unknown> {
   headers?: Record<string, string>;
 }
 
-// 1. The Base Function (Keep your existing logic)
 export async function apiClient<TResponse, TBody = unknown>(
   endpoint: string,
   options?: ApiOptions<TBody>
 ): Promise<TResponse> {
   const { method = 'GET', query, body, headers } = options || {};
 
-  // Clean up query params (remove undefined)
-  const cleanQuery = query ? Object.fromEntries(
-    Object.entries(query).filter(([_, v]) => v !== undefined)
-  ) : {};
+  const cleanQuery = query
+  ? Object.fromEntries(
+      Object.entries(query).filter((entry) => entry[1] !== undefined)
+    )
+  : {};
 
   const queryString = Object.keys(cleanQuery).length > 0
-    ? '?' + new URLSearchParams(cleanQuery as any).toString()
-    : '';
+  ? '?' + new URLSearchParams(
+      Object.entries(cleanQuery).reduce((acc, [key, value]) => {
+        acc[key] = String(value);
+        return acc;
+      }, {} as Record<string, string>)
+    ).toString()
+  : '';
 
   const url = `${process.env.NEXT_PUBLIC_API_URL}${endpoint}${queryString}`;
 
@@ -38,17 +41,27 @@ export async function apiClient<TResponse, TBody = unknown>(
 
   if (!res.ok) {
     const rawData = await res.text();
-    let parsed: any;
+    let parsed: unknown;
     try { parsed = JSON.parse(rawData); } catch { parsed = rawData; }
     
-    const message = parsed?.message || parsed?.error || 'API Request failed';
-    throw new ApiError(res.status, message, parsed);
+    let message = 'API Request failed';
+
+    if (typeof parsed === 'object' && parsed !== null) {
+      const p = parsed as { message?: string; error?: string };
+      message = p.message || p.error || message;
+    } else if (typeof parsed === 'string') {
+      message = parsed;
+    }
+
+    // 2. FIXED: Throw the error so 'message' is actually used
+    // This also prevents the code from trying to call res.json() on a failed request
+    throw new Error(message);
   }
 
   return res.json();
 }
 
-// 2. Add shorthand methods so "apiClient.get" works
+// Shorthand methods
 apiClient.get = <TResponse>(endpoint: string, options?: Omit<ApiOptions, 'method' | 'body'>) => 
   apiClient<TResponse>(endpoint, { ...options, method: 'GET' });
 

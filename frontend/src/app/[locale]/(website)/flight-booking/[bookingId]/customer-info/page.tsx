@@ -71,9 +71,6 @@ export default function CustomerFlightBookingPage() {
     );
   }
 
-  if (!confirmPriceState) {
-    return <div className='p-10 font-bold text-center text-white'>Loading flight details...</div>;
-  }
   return (
     <div className='flex flex-col gap-8 w-full lg:max-w-7xl mx-auto px-4 py-8'>
       <div className='flex justify-center items-center md:hidden w-full'>
@@ -89,7 +86,10 @@ export default function CustomerFlightBookingPage() {
           </div>
         </Button>
       </div>
-      <CustomerInfoPage flight_id={storedFlightId!} data_profile={confirmPriceState} search_param={flSearchParams!} />
+      <CustomerInfoPage
+		  flight_id={storedFlightId!}
+		  search_param={flSearchParams!}
+		/>
     </div>
   );
 }

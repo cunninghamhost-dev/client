@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { TConfirmPriceSegment } from '@/lib/schemas/server/tiqwa/response/confirm-price-response.schema';
+import { TConfirmPriceSegment } from '@/lib/types/flight-booking/confirm-price.types';
 import { format } from 'date-fns';
 import { truncateText } from '@/lib/helper/string-manipulator.helper';
 import Image from 'next/image';

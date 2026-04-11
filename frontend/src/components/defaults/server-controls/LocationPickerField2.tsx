@@ -53,8 +53,14 @@ export function LocationPickerField2({ value, onChange }: LocationPickerProps) {
   }, [grouped]);
 
   function handleSelect(item: AirportLocationValue) {
-    addRecentSearch(item);
-    setRecent(getRecentSearches());
+    // Find the full Airport object from results that matches the selected item
+    const airport = results.find(
+      (a) => a.city_code === item.city_code && a.city === item.city && a.country === item.country
+    );
+    if (airport) {
+      addRecentSearch(airport);
+      setRecent(getRecentSearches());
+    }
     onChange(item);
     setOpen(false);
   }

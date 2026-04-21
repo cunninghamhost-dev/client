@@ -1,5 +1,5 @@
 import express from "express";
-import { createCheckoutSession } from "./payments.controller";
+import { createCheckoutSession } from "./payments.controller.js";
 
 const router = express.Router();
 

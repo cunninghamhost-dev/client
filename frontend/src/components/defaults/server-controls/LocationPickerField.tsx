@@ -30,8 +30,8 @@ export function LocationPickerField({ value, onSelect }: ILocationPickerProps) {
         query: { keyword: q },
       });
       setResults(data);
-    } catch (err) {
-      console.error('Airport search failed', error);
+    } catch (err: unknown) {
+      console.error('Airport search failed', err);
     } finally {
       setLoading(false);
     }

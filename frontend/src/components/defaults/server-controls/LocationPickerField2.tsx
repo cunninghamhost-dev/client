@@ -25,8 +25,8 @@ export function LocationPickerField2({ value, onChange }: LocationPickerProps) {
     try {
       const data = await apiClient<Airport[]>('/flights/airports', { query: { keyword: q } });
       setResults(data);
-    } catch (err) {
-      console.error('Airport search failed', error);
+    } catch (err: unknown) {
+      console.error('Airport search failed', err);
       setResults([]);
     }
   }, 400);

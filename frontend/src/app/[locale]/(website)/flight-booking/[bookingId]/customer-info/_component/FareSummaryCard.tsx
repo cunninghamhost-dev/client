@@ -34,8 +34,9 @@ const FareSummaryCard = ({ data, params }: FareSummaryProps) => {
       : '--:--';
 
   const markup =
+    data.pricing.markup &&
     typeof data.pricing.markup === 'object'
-      ? data.pricing.markup?.markup_value ?? 0
+      ? (data.pricing.markup as { markup_value?: number }).markup_value ?? 0
       : Number(data.pricing.markup ?? 0);
 
   return (

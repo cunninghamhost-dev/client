@@ -4,9 +4,16 @@ export const truncateText = (text: string, maxLength: number): string => {
 
 export const formatNGN = (
   amount?: number | string | null
-) => {
-  const safe = Number(amount ?? 0);
-  return `₦${safe.toLocaleString('en-NG')}`;
+): string => {
+  const parsed = typeof amount === 'string'
+    ? Number(amount.replace(/,/g, ''))
+    : Number(amount);
+
+  if (!Number.isFinite(parsed)) {
+    return '₦0';
+  }
+
+  return `₦${parsed.toLocaleString('en-NG')}`;
 };
 
 export const parseTime = (timeStr: string): string => timeStr.slice(11, 16);

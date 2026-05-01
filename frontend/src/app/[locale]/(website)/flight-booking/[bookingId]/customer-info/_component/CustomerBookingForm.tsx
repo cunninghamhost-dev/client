@@ -11,7 +11,6 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Label } from '@/components/ui/label';
 import {
   BookingFormSchema,
-  TBookingProviderRequestForm,
   TBookingRegistrationForm,
   TPassengerInfoForm,
 } from '@/lib/schemas/website/flight-booking.schema';
@@ -21,19 +20,17 @@ import PhoneInput from 'react-phone-number-input';
 import { Edit3Icon, NotebookPenIcon } from 'lucide-react';
 import InputField from '@/components/defaults/InputField';
 import RadioGroupField, { RadioOption } from '@/components/defaults/RadioGroupField';
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState } from 'react';
 import { getFormErrorMessages } from '@/lib/helper/get-form-error.helper';
 import DatePickerField from '@/components/defaults/DatePickerField';
 import { Separator } from '@/components/ui/separator';
 import { RHFCountrySelect } from '@/components/defaults/RHFCountrySelect';
-//import { loadStripe } from '@stripe/stripe-js';
-import { useInitiateFlightBooking } from '@/lib/hooks/website/flight-booking.hook';
 import { validateAndNormalizePhone } from '@/lib/utils/phone.util';
 import { IAlertProps } from '@/components/custom/AlertDisplayField';
 import { getErrorMessage } from '@/utils/errors';
 import { toast } from 'sonner';
-
-//const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
+import { useRouter } from 'next/navigation';
+import { useFlightBookingStore } from '@/store/website/flight/flight-booking.store';
 
 interface ICustomerBookingFormProps {
   flightId: string;
@@ -70,34 +67,37 @@ const titleOptions: RadioOption[] = [
 const CustomerBookingForm = ({
   flightId,
   searchParams,
-  departureCity,
-  arrivalCity,
-  departureDate,
-  totalAmount = 0.0,
 }: ICustomerBookingFormProps) => {
   const [alert, setAlert] = useState<IAlertProps>({ type: null });
+  const router = useRouter();
+  const setBookingRegistration = useFlightBookingStore((state) => state.setBookingRegistration);
 
   console.log('Customer Booking', alert);
   const adultCount = Number(searchParams?.adult ?? 1);
   const childCount = Number(searchParams?.child ?? 0);
-  const totalPassengers = adultCount + childCount;
+  const infantCount = Number(searchParams?.infant ?? 0);
+  const totalPassengers = adultCount + childCount + infantCount;
 
-  const defaultPassengers: TPassengerInfoForm[] = Array.from({ length: totalPassengers }, (_, index) => ({
-    passengerType: index + 1 < adultCount ? 'child' : 'adult',
-    title: 'Mr',
-    email: '',
-    phone_number: '',
-    firstName: '',
-    lastName: '',
-    gender: 'Male',
-    dateOfBirth: new Date(),
-    passportNumber: '',
-    issuingDate: undefined,
-    passportExpiry: undefined,
-    nationalityCountry: '',
-    issuingCountry: '',
-    holder: true,
-  }));
+  const defaultPassengers: TPassengerInfoForm[] = Array.from({ length: totalPassengers }, (_, index) => {
+    const passengerType = index < adultCount ? 'adult' : index < adultCount + childCount ? 'child' : 'infant';
+
+    return {
+      passengerType,
+      title: passengerType === 'adult' ? 'Mr' : 'Mstr',
+      email: '',
+      phone_number: '',
+      firstName: '',
+      lastName: '',
+      gender: 'Male',
+      dateOfBirth: new Date(),
+      passportNumber: '',
+      issuingDate: undefined,
+      passportExpiry: undefined,
+      nationalityCountry: '',
+      issuingCountry: '',
+      holder: index === 0,
+    };
+  });
 
   type PassengerDraft = TBookingRegistrationForm['passengers'][number];
   const isPassengerComplete = (p: PassengerDraft) => {
@@ -113,8 +113,6 @@ const CustomerBookingForm = ({
       p?.issuingCountry
     );
   };
-
-  const initiateBooking = useInitiateFlightBooking();
 
   const form = useForm<TBookingRegistrationForm>({
     resolver: zodResolver(BookingFormSchema),
@@ -170,22 +168,13 @@ const CustomerBookingForm = ({
           phone_number: validatePhoneNumber.normalized,
         },
       };
-      const serverBooking: TBookingProviderRequestForm = {
-        flightId,
-        totalAmount,
-        origin: departureCity,
-        destination: arrivalCity,
-        travelDate: departureDate,
-        travellerCount: totalPassengers,
-        userRegistrying: bookingFlight,
-      };
-      const bookingResult = await initiateBooking.mutateAsync(serverBooking);
       setAlert({
         type: 'success',
-        title: 'Registration Booking Successful',
-        description: 'Redirecting to secure payment...',
+        title: 'Passenger details saved',
+        description: 'Review your information before payment.',
       });
-      window.location.assign(bookingResult.checkoutUrl);
+      setBookingRegistration(bookingFlight);
+      router.push(`/flight-booking/${encodeURIComponent(flightId)}/review`);
 
     } catch (err) {
       const message = getErrorMessage(err);
@@ -193,24 +182,6 @@ const CustomerBookingForm = ({
       toast.error(message);
     }
   };
-
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-   useEffect(() => {
-      const checkAuth = () => {
-        // Check for 'isLoggedIn=true' instead of 'token='
-        const cookies = document.cookie.split(';');
-        const isUserLoggedIn = cookies.some((item) => item.trim().startsWith('isLoggedIn=true'));
-        
-        setIsLoggedIn(isUserLoggedIn);
-      };
-
-      checkAuth();
-      
-      // This listener helps if the user logs out in another tab
-      window.addEventListener('focus', checkAuth); 
-      return () => window.removeEventListener('focus', checkAuth);
-    }, []);
 
   return (
     <Form {...form}>
@@ -228,6 +199,7 @@ const CustomerBookingForm = ({
                     Please provide details for{' '}
                     {adultCount > 0 ? (adultCount > 1 ? `${adultCount} adults ` : `${adultCount} adult `) : undefined}
                     {childCount > 0 ? (childCount > 1 ? `${childCount} children` : `${childCount} child`) : undefined}
+                    {infantCount > 0 ? (infantCount > 1 ? ` ${infantCount} infants` : ` ${infantCount} infant`) : undefined}
                   </p>
                 </div>
               </div>
@@ -374,7 +346,6 @@ const CustomerBookingForm = ({
             </Accordion>
           </CardContent>
         </Card>
-        {!isLoggedIn ? (
         <Card>
           <CardHeader className='flex flex-row items-center justify-between'>
             <CardTitle>
@@ -438,14 +409,12 @@ const CustomerBookingForm = ({
             />
           </CardContent>
         </Card>
-        ) : (<></>)}
         <Button
           type='submit'
           size='lg'
           className='w-full bg-[#E63A24] hover:bg-[#c5311e] text-white font-bold cursor-pointer'
-          disabled={initiateBooking.isPending}
         >
-          {initiateBooking.isPending ? 'Initiating Booking request ...' : 'Continue to Payment'}
+          Continue to Payment
         </Button>
         {errorMessages.length > 0 && (
           <div className='mb-4 rounded-md border border-red-200 bg-red-50 p-4'>

@@ -12,31 +12,29 @@ export const mapFlightToDetails = (
     amount,
     currency: flight.currency ?? 'NGN',
 
-    fare_basis: '',
-    office_id: '',
+    fare_basis: flight.fare_basis ?? '',
+    office_id: flight.office_id ?? '',
 
-    outbound: [],
-    inbound: [],
+    outbound: flight.outbound ?? [],
+    inbound: flight.inbound ?? [],
 
-    outbound_stops: 0,
-    inbound_stops: 0,
+    outbound_stops: flight.outbound_stops ?? 0,
+    inbound_stops: flight.inbound_stops ?? 0,
 
-    total_duration: 0,
-    total_outbound_duration: 0,
-    total_inbound_duration: 0,
+    total_duration: flight.total_duration ?? 0,
+    total_outbound_duration: flight.total_outbound_duration ?? 0,
+    total_inbound_duration: flight.total_inbound_duration ?? 0,
 
-    pricing: {
+    pricing: flight.pricing ?? {
       base_fare: amount,
       markup: null,
       payable: amount,
       tax: 0,
     },
 
-    travelers_price: (flight.travelers_price ?? []).map((p) => ({
-      adult: Number(p.adult ?? 0),
-    })),
+    travelers_price: flight.travelers_price ?? [],
 
-    price_summary: [
+    price_summary: flight.price_summary ?? [
       {
         passenger_type: 'adult',
         quantity: 1,

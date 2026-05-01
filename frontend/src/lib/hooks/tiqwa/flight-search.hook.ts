@@ -1,21 +1,13 @@
 //src/lib/hooks/tiqwa/flight-search.hook.ts
 import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api/apiClient';
+import { FlightDetailsProps } from '@/lib/types/flight-search/response-flight-search.type';
 
-export interface Flight {
-  id: string;
-  amount: number;
-  currency: string;
-  travelers_price: {
-    adult?: number;
-    child?: number;
-    infant?: number;
-  }[];
-}
+export type Flight = FlightDetailsProps;
 
-interface FlightSearchResponse {
+type FlightSearchResponse = Flight[] | {
   data?: Flight[];
-}
+};
 
 export interface FlightSearchParams {
   origin: string;
@@ -47,7 +39,7 @@ export const useGetTiqwaFlightSearch = (params: FlightSearchParams) => {
 
       console.log('📡 Backend Response:', response);
 
-      return response.data ?? [];
+      return Array.isArray(response) ? response : response.data ?? [];
     },
     enabled: !!(params.origin && params.destination && params.departure_date),
   });

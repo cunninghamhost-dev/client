@@ -26,7 +26,7 @@ export const ContactDetailsSchema = z.object({
 
 export const PassengerInfoFormSchema = z
   .object({
-    passengerType: z.enum(['adult', 'child']),
+    passengerType: z.enum(['adult', 'child', 'infant']),
     title: z.enum(['Mr', 'Mrs', 'Ms', 'Miss', 'Mstr'], { message: 'Title is required' }),
     email: z.string().email().trim(),
     phone_number: z.string().min(8, 'Invalid Phone Number'),
@@ -68,6 +68,13 @@ export const PassengerInfoFormSchema = z
         code: z.ZodIssueCode.custom,
       });
     }
+    if (data.passengerType === 'infant' && age >= 2) {
+      ctx.addIssue({
+        path: ['dateOfBirth'],
+        message: 'Infant passengers must be under 2 years old',
+        code: z.ZodIssueCode.custom,
+      });
+    }
     // Passport expiry must be in the future (only if provided)
     if (data.passportExpiry && data.passportExpiry <= today) {
       ctx.addIssue({
@@ -98,6 +105,7 @@ export const BookingProviderRequestSchema = z.object({
   destination: z.string().optional(),
   travelDate: z.coerce.date().optional(),
   travellerCount: z.number().optional(),
+  paymentProvider: z.enum(['stripe', 'paystack']).optional(),
   userRegistrying: BookingFormSchema,
 });
 

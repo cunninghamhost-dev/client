@@ -3,6 +3,8 @@ import { apiClient } from '@/lib/api/apiClient';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
+export type PaymentProvider = 'stripe' | 'paystack';
+
 type FlightBookingResponse = {
   reference?: string;
   booking_reference?: string;
@@ -18,6 +20,13 @@ type FlightBookingResponse = {
 
 type CheckoutSessionResponse = {
   url?: string;
+  checkoutUrl?: string;
+  authorization_url?: string;
+  data?: {
+    url?: string;
+    checkoutUrl?: string;
+    authorization_url?: string;
+  };
 };
 
 type FlightBookingMutationResult = {
@@ -48,6 +57,74 @@ const getCheckoutUrls = () => {
   };
 };
 
+const toApiDate = (date?: Date) => (date ? date.toISOString().slice(0, 10) : undefined);
+
+const buildTiqwaBookingPayload = (payload: TBookingProviderRequestForm) => {
+  const registration = payload.userRegistrying;
+
+  return {
+    flightId: payload.flightId,
+    flight_id: payload.flightId,
+    totalAmount: payload.totalAmount,
+    amount: payload.totalAmount,
+    origin: payload.origin,
+    destination: payload.destination,
+    travelDate: toApiDate(payload.travelDate),
+    travel_date: toApiDate(payload.travelDate),
+    travellerCount: payload.travellerCount,
+    passenger_count: payload.travellerCount,
+    contact: registration.contact,
+    passengers: registration.passengers.map((passenger) => ({
+      ...passenger,
+      first_name: passenger.firstName,
+      last_name: passenger.lastName,
+      type: passenger.passengerType,
+      passenger_type: passenger.passengerType,
+      date_of_birth: toApiDate(passenger.dateOfBirth),
+      issuing_date: toApiDate(passenger.issuingDate),
+      passport_expiry: toApiDate(passenger.passportExpiry),
+      passport_number: passenger.passportNumber,
+      nationality_country: passenger.nationalityCountry,
+      issuing_country: passenger.issuingCountry,
+    })),
+    userRegistrying: registration,
+  };
+};
+
+const getCheckoutUrl = (response: CheckoutSessionResponse) =>
+  response.url ??
+  response.checkoutUrl ??
+  response.authorization_url ??
+  response.data?.url ??
+  response.data?.checkoutUrl ??
+  response.data?.authorization_url;
+
+const createCheckoutSession = async (
+  payload: TBookingProviderRequestForm,
+  booking: FlightBookingResponse,
+  provider: PaymentProvider,
+) => {
+  const checkoutPayload = {
+    provider,
+    price: payload.totalAmount,
+    amount: payload.totalAmount,
+    flightId: payload.flightId,
+    flight_id: payload.flightId,
+    bookingReference: getBookingReference(booking),
+    booking_reference: getBookingReference(booking),
+    ...getCheckoutUrls(),
+  };
+
+  const endpoint = provider === 'paystack' ? '/payments/paystack/initialize' : '/payments/checkout';
+
+  try {
+    return await apiClient.post<CheckoutSessionResponse, typeof checkoutPayload>(endpoint, checkoutPayload);
+  } catch (error) {
+    if (provider !== 'paystack') throw error;
+    return apiClient.post<CheckoutSessionResponse, typeof checkoutPayload>('/payments/checkout', checkoutPayload);
+  }
+};
+
 /* ----------------------------------------------
    🟠 Post Flight Booking profile
    on the Model set
@@ -60,34 +137,24 @@ export const useInitiateFlightBooking = () => {
     mutationFn: async (payload: TBookingProviderRequestForm) => {
       flightbooking_id = payload.flightId;
 
-      const booking = await apiClient.post<FlightBookingResponse, TBookingProviderRequestForm>(
+      const paymentProvider = payload.paymentProvider ?? 'stripe';
+      const bookingPayload = buildTiqwaBookingPayload(payload);
+
+      const booking = await apiClient.post<FlightBookingResponse, ReturnType<typeof buildTiqwaBookingPayload>>(
         `/flights/book/${encodeURIComponent(payload.flightId)}`,
-        payload,
+        bookingPayload,
       );
 
-      const checkoutSession = await apiClient.post<
-        CheckoutSessionResponse,
-        {
-          price: number;
-          flightId: string;
-          bookingReference?: string;
-          successUrl?: string;
-          cancelUrl?: string;
-        }
-      >('/payments/checkout', {
-        price: payload.totalAmount,
-        flightId: payload.flightId,
-        bookingReference: getBookingReference(booking),
-        ...getCheckoutUrls(),
-      });
+      const checkoutSession = await createCheckoutSession(payload, booking, paymentProvider);
+      const checkoutUrl = getCheckoutUrl(checkoutSession);
 
-      if (!checkoutSession.url) {
-        throw new Error('Stripe checkout session was not created');
+      if (!checkoutUrl) {
+        throw new Error(`${paymentProvider === 'paystack' ? 'Paystack' : 'Stripe'} checkout session was not created`);
       }
 
       return {
         booking,
-        checkoutUrl: checkoutSession.url,
+        checkoutUrl,
       };
     },
 

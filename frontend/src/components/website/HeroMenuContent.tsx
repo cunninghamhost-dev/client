@@ -43,7 +43,15 @@ const tabs = [
   },
 ];
 
-const HeroMenuContent = ({ serviceType, isImage }: { serviceType: number; isImage?: boolean }) => {
+const HeroMenuContent = ({
+  serviceType,
+  isImage,
+  showContent = true,
+}: {
+  serviceType: number;
+  isImage?: boolean;
+  showContent?: boolean;
+}) => {
   console.log('HeroMenuContent component', isImage);
   const firstTabValue = tabs[serviceType - 1]?.value || '';
   const [activeTab, setActiveTab] = useState<string>(firstTabValue);
@@ -77,17 +85,21 @@ const HeroMenuContent = ({ serviceType, isImage }: { serviceType: number; isImag
               </TabsTrigger>
             ))}
           </TabsList>
-          <div className="mt-4 w-full">
+          {showContent && (
+            <div className='mt-4 w-full'>
               {tabs.map(({ value, content }) => (
                 <div
                   key={value}
-                  ref={el => { contentRefs.current[value] = el; }}
+                  ref={(el) => {
+                    contentRefs.current[value] = el;
+                  }}
                   className={activeTab === value ? 'block' : 'hidden'}
                 >
                   {content}
                 </div>
               ))}
             </div>
+          )}
         </Tabs>
       </div>
     </div>

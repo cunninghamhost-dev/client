@@ -39,7 +39,7 @@ const FlightLayout = ({ children }: ILayoutProps) => {
                       From Dreams to Destinations, We Take You There
                     </h1> */}
                     <div className='flex flex-col justify-center items-center overflow-hidden'>
-                      <HeroMenuContent serviceType={1} />
+                      <HeroMenuContent serviceType={1} showContent={false} />
                     </div>
                     <div className='lg:absolute lg:top-27.5 lg:left-1/2 lg:transform lg:-translate-x-1/2 w-full mx-auto lg:max-w-[90%]'>
                       <FlightSubMenu />

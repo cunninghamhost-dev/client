@@ -70,7 +70,7 @@ export default function DatePickerField<T extends FieldValues>({
                     onSelect={handleChange}
                     disabled={disablePrevious ? { before: new Date() } : false}
                     captionLayout='dropdown'
-                    fromYear={1995}
+                    fromYear={1940}
                     toYear={2100}
                   />
                 </PopoverContent>

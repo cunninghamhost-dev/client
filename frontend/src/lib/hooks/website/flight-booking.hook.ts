@@ -73,7 +73,7 @@ export const useInitiateFlightBooking = () => {
           bookingReference?: string;
           successUrl?: string;
           cancelUrl?: string;
-        },
+        }
       >('/payments/checkout', {
         price: payload.totalAmount,
         flightId: payload.flightId,

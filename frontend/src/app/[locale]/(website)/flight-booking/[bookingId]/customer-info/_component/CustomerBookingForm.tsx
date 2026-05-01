@@ -179,19 +179,18 @@ const CustomerBookingForm = ({
         travellerCount: totalPassengers,
         userRegistrying: bookingFlight,
       };
-      //console.log('Customer Booking Profile: ', serverBooking);
-      toast.success(`Booking Profile ${JSON.stringify(serverBooking)}`);
-
-      initiateBooking.mutateAsync(serverBooking);
+      const bookingResult = await initiateBooking.mutateAsync(serverBooking);
       setAlert({
         type: 'success',
         title: 'Registration Booking Successful',
-        description: 'Flight Booking Created!',
+        description: 'Redirecting to secure payment...',
       });
+      window.location.assign(bookingResult.checkoutUrl);
 
     } catch (err) {
       const message = getErrorMessage(err);
       console.error(`Book Ticket error: ${message}`);
+      toast.error(message);
     }
   };
 

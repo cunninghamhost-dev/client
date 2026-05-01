@@ -27,8 +27,8 @@ export async function apiClient<TResponse, TBody = unknown>(
     ).toString()
   : '';
 
-  const isFlightEndpoint = endpoint.startsWith('/flights');
-  const baseUrl = isFlightEndpoint ? '/api' : process.env.NEXT_PUBLIC_API_URL;
+  const isNextProxiedEndpoint = endpoint.startsWith('/flights') || endpoint.startsWith('/payments');
+  const baseUrl = isNextProxiedEndpoint ? '/api' : process.env.NEXT_PUBLIC_API_URL;
   const url = `${baseUrl}${endpoint}${queryString}`;
 
   const requestHeaders: Record<string, string> = {

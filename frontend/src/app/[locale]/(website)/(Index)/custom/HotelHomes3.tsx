@@ -104,7 +104,14 @@ const HotelHomes = () => {
                                 setOpen(false);
                               }}
                             /> */}
-                            <Calendar mode='single' selected={field.value} onSelect={field.onChange} />
+                            <Calendar
+                              mode='single'
+                              selected={field.value}
+                              onSelect={(date) => {
+                                field.onChange(date);
+                                if (date) setOpen(false);
+                              }}
+                            />
                           </PopoverContent>
                         </Popover>
                       </FormItem>

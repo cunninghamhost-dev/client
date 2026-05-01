@@ -21,6 +21,8 @@ export default function DatePickerField<T extends FieldValues>({
   placeholder,
   disablePrevious = false,
 }: DatePickerFieldProps<T>) {
+  const [open, setOpen] = React.useState(false);
+
   return (
     <div className='mb-2 w-full'>
       <Controller
@@ -31,11 +33,12 @@ export default function DatePickerField<T extends FieldValues>({
 
           const handleChange = (date: Date | undefined) => {
             field.onChange(date);
+            if (date) setOpen(false);
           };
 
           return (
             <div className='w-full lg:mt-2'>
-              <Popover>
+              <Popover open={open} onOpenChange={setOpen}>
                 <PopoverTrigger asChild>
                   <Button
                     variant='ghost'
@@ -62,14 +65,14 @@ export default function DatePickerField<T extends FieldValues>({
                 </PopoverTrigger>
                 <PopoverContent className='w-auto p-0'>
                   <Calendar
-                      mode='single'
-                      selected={value}
-                      onSelect={handleChange}
-                      disabled={disablePrevious ? { before: new Date() } : false}
-                      captionLayout="dropdown"     
-                      fromYear={1995}              
-                      toYear={2100}                
-                    />
+                    mode='single'
+                    selected={value}
+                    onSelect={handleChange}
+                    disabled={disablePrevious ? { before: new Date() } : false}
+                    captionLayout='dropdown'
+                    fromYear={1995}
+                    toYear={2100}
+                  />
                 </PopoverContent>
               </Popover>
             </div>

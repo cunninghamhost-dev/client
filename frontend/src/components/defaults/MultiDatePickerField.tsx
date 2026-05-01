@@ -20,6 +20,8 @@ export default function MultiDatePickerField<T extends FieldValues>({
   placeholder = 'Pick dates',
   className,
 }: MultiDatePickerFieldProps<T>) {
+  const [open, setOpen] = React.useState(false);
+
   return (
     // <div className='flex flex-col gap-2 w-[180px]'>
     <div className={'mb-2 w-full lg:w-fit'}>
@@ -31,7 +33,7 @@ export default function MultiDatePickerField<T extends FieldValues>({
 
           return (
             <div className='w-full lg:w-fit lg:mt-2'>
-              <Popover>
+              <Popover open={open} onOpenChange={setOpen}>
                 <PopoverTrigger asChild>
                   <Button
                     role='combobox'
@@ -60,7 +62,10 @@ export default function MultiDatePickerField<T extends FieldValues>({
                   <Calendar
                     mode='multiple'
                     selected={value}
-                    onSelect={(dates) => onChange(dates ?? [])}
+                    onSelect={(dates) => {
+                      onChange(dates ?? []);
+                      if (dates?.length) setOpen(false);
+                    }}
                     numberOfMonths={2}
                     // 🚫 disable all days before today
                     disabled={{ before: new Date() }}

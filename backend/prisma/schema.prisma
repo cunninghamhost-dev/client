@@ -1,0 +1,94 @@
+// Prisma Client Generator
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Database connection
+datasource db {
+  provider = "postgresql"
+}
+
+//////////////////////////////////////////////////////
+// ENUMS
+//////////////////////////////////////////////////////
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+//////////////////////////////////////////////////////
+// USER MODEL
+//////////////////////////////////////////////////////
+
+model User {
+  id              String   @id @default(uuid())
+  email           String   @unique
+  password        String
+  firstName       String?
+  lastName        String?
+
+  role            UserRole @default(USER)
+
+  emailVerified   Boolean  @default(false)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // relations
+  emailTokens     EmailVerificationToken[]
+  passwordTokens  PasswordResetToken[]
+}
+
+//////////////////////////////////////////////////////
+// EMAIL VERIFICATION TOKENS
+//////////////////////////////////////////////////////
+
+model EmailVerificationToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+//////////////////////////////////////////////////////
+// PASSWORD RESET TOKENS
+//////////////////////////////////////////////////////
+
+model PasswordResetToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+
+
+
+
+
+model Booking {
+  id        String   @id @default(uuid())
+  name      String
+  email     String
+  service   String
+  date      DateTime
+  createdAt DateTime @default(now())
+}
+
+model Flight {
+  id            String   @id @default(uuid())
+  airline       String
+  origin        String
+  destination   String
+  departureTime DateTime
+  createdAt     DateTime @default(now())
+}

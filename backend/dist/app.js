@@ -12,10 +12,29 @@ import countriesRoutes from "./modules/countries/countries.routes.js";
 // Import middleware
 import { errorHandler } from "./middleware/errorMiddleware.js";
 import { requestLogger } from "./middleware/requestLogger.js";
+import { env } from "./config/env.js";
 const app = express();
+const allowedOrigins = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    env.CLIENT_URL,
+    ...(env.CLIENT_URLS?.split(",").map((origin) => origin.trim()).filter(Boolean) ?? []),
+];
 app.use(cors({
-    origin: "http://localhost:3000", // your Next.js frontend
-    credentials: true, // allow cookies
+    origin(origin, callback) {
+        if (!origin) {
+            return callback(null, true);
+        }
+        if (allowedOrigins.includes(origin)) {
+            return callback(null, true);
+        }
+        const isAllowedVercelPreview = /^https:\/\/client-frontend(?:-[\w-]+)?\.vercel\.app$/.test(origin);
+        if (isAllowedVercelPreview) {
+            return callback(null, true);
+        }
+        return callback(new Error(`Origin ${origin} is not allowed by CORS`));
+    },
+    credentials: true,
 }));
 app.use(helmet());
 app.use(express.json());

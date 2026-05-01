@@ -5,5 +5,6 @@ export declare const env: {
     STRIPE_SECRET_KEY: string;
     STRIPE_WEBHOOK_SECRET?: string | undefined;
     CLIENT_URL?: string | undefined;
+    CLIENT_URLS?: string | undefined;
 };
 //# sourceMappingURL=env.d.ts.map

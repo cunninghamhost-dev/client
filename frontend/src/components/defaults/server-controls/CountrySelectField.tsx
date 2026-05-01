@@ -47,10 +47,9 @@ export function CountrySelectField({
     }, {});
   }, [countries]);
 
-  const selectedCountry = value ? countries.find((c) => c.id === value) : undefined;
+  const selectedCountry = value ? countries.find((c) => c.code === value || c.id === value) : undefined;
   function handleSelect(country: TCountryResponse) {
-    console.log('Select Country Profile: ', country);
-    onChange(country.id);
+    onChange(country.code);
     setOpen(false);
   }
 
@@ -87,7 +86,7 @@ export function CountrySelectField({
                       onSelect={() => handleSelect(country)}
                       className='w-full'
                     >
-                      <Check className={cn('mr-2 h-4 w-4', value === country.id ? 'opacity-100' : 'opacity-0')} />
+                      <Check className={cn('mr-2 h-4 w-4', value === country.code ? 'opacity-100' : 'opacity-0')} />
                       {country.name}
                     </CommandItem>
                   ))}

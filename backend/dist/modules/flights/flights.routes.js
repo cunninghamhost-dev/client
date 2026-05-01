@@ -1,6 +1,6 @@
 // src/modules/flights/flights.routes.ts
 import { Router } from "express";
-import * as flightsController from "./flights.controller"; // Note: removed .js for TS standard, add back if your environment strictly requires it
+import * as flightsController from "./flights.controller.js"; // Note: removed .js for TS standard, add back if your environment strictly requires it
 const router = Router();
 // --- Search Routes ---
 router.get("/airports", flightsController.getAirports);

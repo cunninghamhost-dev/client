@@ -1,3 +1,3 @@
 import "dotenv/config";
-import "./server.ts";
+import "./server";
 //# sourceMappingURL=index.d.ts.map

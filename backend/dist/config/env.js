@@ -6,6 +6,7 @@ const envSchema = z.object({
     STRIPE_SECRET_KEY: z.string(),
     STRIPE_WEBHOOK_SECRET: z.string().optional(),
     CLIENT_URL: z.string().optional(),
+    CLIENT_URLS: z.string().optional(),
 });
 export const env = envSchema.parse(process.env);
 //# sourceMappingURL=env.js.map

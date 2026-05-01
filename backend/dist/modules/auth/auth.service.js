@@ -9,7 +9,6 @@ import { AppError } from "../../utils/errors.js";
 */
 export async function register(data) {
     const { firstName, lastName, email, password } = data;
-    const name = `${firstName} ${lastName}`;
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
         where: { email },
@@ -34,10 +33,11 @@ export async function register(data) {
         userId: user.id,
         role: user.role,
     });
+    const fullName = `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim();
     return {
         user: {
             id: user.id,
-            name: user.name,
+            name: fullName || user.email,
             email: user.email,
             role: user.role,
         },
@@ -68,10 +68,11 @@ export async function login(data) {
         userId: user.id,
         role: user.role,
     });
+    const fullName = `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim();
     return {
         user: {
             id: user.id,
-            name: user.name,
+            name: fullName || user.email,
             email: user.email,
             role: user.role,
         },

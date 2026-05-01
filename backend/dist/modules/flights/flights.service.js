@@ -13,8 +13,7 @@ const tiqwaFetch = async (endpoint, options = {}) => {
     if (!API_KEY)
         throw new Error("TIQWA_API_KEY is not defined in .env");
     const url = `${baseUrl}${cleanEndpoint}`;
-    console.log("API_KEY:", API_KEY);
-    console.log("BASE_URL:", BASE_URL);
+    console.log("Tiqwa base URL:", BASE_URL);
     console.log(`📡 Sending Request to Tiqwa: [${options.method || 'GET'}] ${url}`);
     const response = await fetch(url, {
         ...options,

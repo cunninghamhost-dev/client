@@ -21,7 +21,7 @@ export const requireAdmin = async (req, res, next) => {
             return res.status(401).json({ message: "Unauthorized" });
         const payload = jwt.verify(token, env.JWT_SECRET);
         const user = await prisma.user.findUnique({ where: { id: payload.id } });
-        if (!user || user.role !== "admin") {
+        if (!user || user.role !== "ADMIN") {
             return res.status(403).json({ message: "Forbidden: Admins only" });
         }
         req.user = payload;

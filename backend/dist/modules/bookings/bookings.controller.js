@@ -1,4 +1,5 @@
 import { prisma } from "../../lib/prisma.js";
+import { createBookingService } from "./bookings.service.js";
 /**
  * GET /bookings
  * Fetch all bookings
@@ -29,15 +30,7 @@ export const getAllBookings = async (req, res) => {
  */
 export const createBooking = async (req, res) => {
     try {
-        const { name, email, date, service } = req.body;
-        const booking = await prisma.booking.create({
-            data: {
-                name,
-                email,
-                date: new Date(date),
-                service,
-            },
-        });
+        const booking = await createBookingService(req.body);
         res.status(201).json({
             success: true,
             data: booking,

@@ -13,3 +13,20 @@ export interface AirportLocationValue {
   city_code: string;
   country: string;
 }
+
+export interface TiqwaCity {
+  name: string;
+  city_code: string;
+}
+
+export interface TiqwaCountry {
+  name: string;
+  cities: TiqwaCity[];
+}
+
+export interface ISearchItem {
+  country: string;
+  city: string;
+  city_code: string;
+  label: string; // what user sees
+}

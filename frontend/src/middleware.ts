@@ -50,18 +50,31 @@ function redirectWithLocale(request: NextRequest, locale: string) {
 ------------------------------------------ */
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const token = request.cookies.get('token')?.value;
+
+  // ✅ HARD SKIP API ROUTES
+  if (pathname.startsWith('/api')) {
+    return NextResponse.next();
+  }
+  // ✅ Skip Next internals & static assets
+  if (
+    pathname.startsWith('/_next') ||
+    pathname.includes('.') ||
+    pathname.startsWith('/favicon.ico')
+  ) {
+    return NextResponse.next();
+  }
+  const token = request.cookies.get('cgt_access_token')?.value;
 
   // --- 1. AUTHENTICATION PROTECTION ---
-  
+
   // Check if the path is a dashboard path (e.g., /dashboard, /en/dashboard, /fr/dashboard)
   const isDashboardPath = pathname.endsWith('/dashboard') || pathname.includes('/dashboard/');
-  const isAuthPath = pathname.endsWith('/authentication') || pathname.includes('/authentication/');
+  const isAuthPath = pathname.startsWith('/auth') || pathname.includes('/auth/');
 
   // If trying to access dashboard while not logged in
   if (!token && isDashboardPath) {
     const locale = getLocale(request);
-    return NextResponse.redirect(new URL(`/${locale}/authentication`, request.url));
+    return NextResponse.redirect(new URL(`/${locale}/auth/login`, request.url));
   }
 
   // If logged in but trying to access login page
@@ -71,10 +84,10 @@ export function middleware(request: NextRequest) {
   }
 
   // --- 2. LOCALE & INTERNATIONALIZATION ---
-  
+
   // Existing logic for next-intl
   const localeInPath = routing.locales.find(
-    (locale) => pathname === `/${locale}` || pathname.startsWith(`/${locale}/`)
+    (locale) => pathname === `/${locale}` || pathname.startsWith(`/${locale}/`),
   );
 
   if (localeInPath) {

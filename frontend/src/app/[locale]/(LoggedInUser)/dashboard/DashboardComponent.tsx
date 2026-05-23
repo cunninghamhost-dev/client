@@ -1,15 +1,17 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import React from 'react'
 
-const Dashboard = () => {
-  const router = useRouter();
+import { useLogout } from '@/lib/hooks/auth/useLogout';
+
+const DashboardComponent = () => {
+
+  const { mutate: logoutFN } = useLogout();
 
   const handleLogout = async () => {
-    await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
-    router.push('/authentication');
+    logoutFN();
+    window.location.href = '/auth/login';
   };
-
   return (
     <div style={{ padding: '20px' }}>
       <h1>Welcome to Dashboard</h1>
@@ -28,7 +30,7 @@ const Dashboard = () => {
         Logout
       </button>
     </div>
-  );
-};
+  )
+}
 
-export default Dashboard;
+export default DashboardComponent

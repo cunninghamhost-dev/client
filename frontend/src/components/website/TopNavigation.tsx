@@ -22,21 +22,21 @@ const TopNavigation = () => {
   const t = useTranslations('nav');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-   useEffect(() => {
-      const checkAuth = () => {
-        // Check for 'isLoggedIn=true' instead of 'token='
-        const cookies = document.cookie.split(';');
-        const isUserLoggedIn = cookies.some((item) => item.trim().startsWith('isLoggedIn=true'));
-        
-        setIsLoggedIn(isUserLoggedIn);
-      };
+  useEffect(() => {
+    const checkAuth = () => {
+      // Check for 'isLoggedIn=true' instead of 'token='
+      const cookies = document.cookie.split(';');
+      const isUserLoggedIn = cookies.some((item) => item.trim().startsWith('isLoggedIn=true'));
 
-      checkAuth();
-      
-      // This listener helps if the user logs out in another tab
-      window.addEventListener('focus', checkAuth); 
-      return () => window.removeEventListener('focus', checkAuth);
-    }, []);
+      setIsLoggedIn(isUserLoggedIn);
+    };
+
+    checkAuth();
+
+    // This listener helps if the user logs out in another tab
+    window.addEventListener('focus', checkAuth);
+    return () => window.removeEventListener('focus', checkAuth);
+  }, []);
 
   useEffect(() => {
     const stickNavbar = () => {
@@ -107,14 +107,14 @@ const TopNavigation = () => {
             {/* Auth Buttons */}
             <div className='flex items-center ml-8 space-x-8'>
               <LanguageSelection languages={LanguagesConstants} />
-              
+
               <button className='flex items-center space-x-2 px-3 py-2 text-gray-800 text-base hover:text-[#E63A24] transition-all duration-300 font-medium transform hover:scale-105'>
                 <span className=' text-[14px]'>{t('actions.manageBookings')}</span>
               </button>
 
               {!isLoggedIn ? (
                 <Link
-                  href={'/authentication'}
+                  href={'/auth/login'}
                   className='flex items-center space-x-2 px-3 py-2 bg-[#E63A24] text-white rounded-lg text-sm hover:bg-[#c12510] transition-all duration-300 font-normal shadow-lg hover:shadow-xl transform hover:scale-105'
                 >
                   <UserPlus className='w-4 h-4 group-hover:scale-110 transition-transform duration-300' />
@@ -190,7 +190,7 @@ const TopNavigation = () => {
                 ) : (
                   <Link href={'/dashboard'} className='block px-4 py-2 font-bold text-[#E63A24]'>
                     {/* Use the translation key here */}
-                    {t('links.dashboard')} 
+                    {t('links.dashboard')}
                   </Link>
                 )}
               </div>

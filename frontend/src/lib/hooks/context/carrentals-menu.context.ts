@@ -1,5 +1,4 @@
 import { useEffect, useContext } from 'react';
-//import { ActiveSectionContext } from '@/context/active-context-section';
 import { useInView } from 'react-intersection-observer';
 import { ActiveSectionContext } from './default/active-context-section';
 import { TSectionName } from '@/types/default.type';

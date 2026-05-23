@@ -2,12 +2,8 @@ export const truncateText = (text: string, maxLength: number): string => {
   return text.length > maxLength ? text.slice(0, maxLength) + '...' : text;
 };
 
-export const formatNGN = (
-  amount?: number | string | null
-): string => {
-  const parsed = typeof amount === 'string'
-    ? Number(amount.replace(/,/g, ''))
-    : Number(amount);
+export const formatNGN = (amount?: number | string | null): string => {
+  const parsed = typeof amount === 'string' ? Number(amount.replace(/,/g, '')) : Number(amount);
 
   if (!Number.isFinite(parsed)) {
     return '₦0';
@@ -35,4 +31,8 @@ export const formatDateDDMMYY = (date: Date): string => {
   const year = String(date.getFullYear()).slice(-2);
 
   return `${day}${month}${year}`;
+};
+
+export const isInvalidParam = (value: string | null) => {
+  return !value || value === 'undefined' || value === 'null' || value.trim() === '';
 };

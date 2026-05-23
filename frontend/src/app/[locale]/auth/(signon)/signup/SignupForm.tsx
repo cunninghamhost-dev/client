@@ -1,63 +1,60 @@
 'use client';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useForm } from 'react-hook-form';
-import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import SVGIcon from '@/components/defaults/SVGIcons';
-import { registerService } from '@/app/service/domain/auth/auth.service';
 import { ApiError } from '@/lib/utils/errors/api-error.util';
+import { signupSchema, RegisterPayload } from '@/lib/schemas/authentication.schema';
+import { useRegister } from '@/lib/hooks/auth/useRegister';
+import { useRouter } from 'next/navigation';
+import AlertDisplayField, { IAlertProps } from '@/components/custom/AlertDisplayField';
 
-// Zod Schema for validation
-const signupSchema = z
-  .object({
-    firstName: z.string().min(2, 'Required at least 2 characters'),
-    lastName: z.string().min(2, 'Required at least 2 characters long'),
-    email: z.string().email('Invalid email address'),
-    password: z.string().min(6, 'Password must be at least 6 characters long'),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: 'Passwords do not match',
-    path: ['confirmPassword'], // attach error to this field
-  });
-type SignupFormValues = z.infer<typeof signupSchema>;
+const SignupForm = () => {
+  const [alert, setAlert] = useState<IAlertProps>({ type: null });
 
-const RegistrationForm = () => {
+  const router = useRouter();
   const cardRef = useRef(null);
+  const { mutate: registerUser, isPending } = useRegister();
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<SignupFormValues>({
+  } = useForm<RegisterPayload>({
     resolver: zodResolver(signupSchema),
   });
 
-  const onSubmit = async (data: SignupFormValues) => {
+  const onSubmit = async (data: RegisterPayload) => {
     try {
-      const payload = {
-        firstName: data.firstName,
-        lastName: data.lastName,
-        email: data.email,
-        password: data.password,
-      };
-
-      const result = await registerService(payload);
-
-      console.log('Registration successful:', result);
-
-      alert('Registration successful! You can now login.');
+      registerUser(data, {
+        onSuccess: () => {
+          setAlert({
+            type: 'success',
+            title: 'Registration successful!',
+            description: 'Please check your email for the Passcode.',
+          });
+          router.push(`/auth/passcode-verification?email=${encodeURIComponent(data.email)}`);
+        },
+      });
     } catch (error) {
       if (error instanceof ApiError) {
         console.error('Registration failed:', error.message);
-        alert(error.message);
+        setAlert({
+          type: 'error',
+          title: error.message || 'Something went wrong.',
+          description: 'Please try again later.',
+        });
       } else {
         console.error('Unexpected error:', error);
-        alert('Something went wrong');
+        setAlert({
+          type: 'error',
+          title: 'Something went wrong',
+          description: 'Please try again later.',
+        });
       }
     }
   };
@@ -68,11 +65,19 @@ const RegistrationForm = () => {
 
   return (
     <div className='max-w-md py-1'>
-      <form ref={cardRef} onSubmit={handleSubmit(onSubmit)}>
+      <form ref={cardRef} onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
+        {alert.type && (
+          <AlertDisplayField
+            type={alert.type}
+            title={alert.title || ''}
+            description={alert.description}
+            onClose={() => setAlert({ type: null, description: '', title: '' })}
+          />
+        )}
         {/* First Name Input */}
-        <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+        <div className='flex flex-col gap-4'>
           {/* First Name Input */}
-          <div className='mb-3'>
+          <div className='space-y-2'>
             <Label htmlFor='first_name' className='block text-sm font-medium text-[#667085] mb-2'>
               First Name
             </Label>
@@ -88,7 +93,7 @@ const RegistrationForm = () => {
             {errors.firstName && <span className='text-red-500 text-sm mt-2'>{errors.firstName.message}</span>}
           </div>
           {/* Last Name Input */}
-          <div className='mb-3'>
+          <div className='space-y-2'>
             <Label htmlFor='last_name' className='block text-sm font-medium text-[#667085] mb-2'>
               Last Name
             </Label>
@@ -105,7 +110,7 @@ const RegistrationForm = () => {
           </div>
         </div>
         {/* Email Input */}
-        <div className='mb-3'>
+        <div className='mt-5 mb-2'>
           <Label htmlFor='email' className='block text-sm font-medium text-[#667085] mb-2'>
             Email
           </Label>
@@ -120,42 +125,6 @@ const RegistrationForm = () => {
           />
           {errors.email && <span className='text-red-500 text-sm mt-2'>{errors.email.message}</span>}
         </div>
-        <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-          {/* Password Input */}
-          <div className='mb-2'>
-            <Label htmlFor='password' className='block text-sm font-medium text-[#667085] mb-2'>
-              Password
-            </Label>
-            <Input
-              id='password'
-              type='password'
-              placeholder='Password'
-              {...register('password')}
-              className={`w-full p-3 border rounded-md focus:outline-none focus:ring-1 focus:ring-gray-200 placeholder:text-gray-400 transition duration-200 focus-visible:border-ring focus-visible:ring-ring/10 focus-visible:ring-[1px] ${
-                errors.password ? 'border-red-500' : 'border-gray-300'
-              }`}
-            />
-            {errors.password && <span className='text-red-500 text-sm mt-2'>{errors.password.message}</span>}
-          </div>
-          {/* Confirm Password */}
-          <div className='mb-2'>
-            <Label htmlFor='password' className='block text-sm font-medium text-[#667085] mb-2'>
-              Confirm Password
-            </Label>
-            <Input
-              id='password'
-              type='password'
-              placeholder='Confirm Password'
-              {...register('confirmPassword')}
-              className={`w-full p-3 border rounded-md focus:outline-none focus:ring-1 focus:ring-gray-200 placeholder:text-gray-400 transition duration-200 focus-visible:border-ring focus-visible:ring-ring/10 focus-visible:ring-[1px] ${
-                errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
-              }`}
-            />
-            {errors.confirmPassword && (
-              <span className='text-red-500 text-sm mt-2'>{errors.confirmPassword.message}</span>
-            )}
-          </div>
-        </div>
 
         <div className='flex items-center justify-between text-sm mt-1 mb-3'>
           <div className='flex items-center space-x-2'>
@@ -169,9 +138,10 @@ const RegistrationForm = () => {
         <Button
           type='submit'
           variant={'outline'}
-          className='w-full py-3 text-[#B02D1C] border-[#B02D1C] rounded-md hover:bg-red-50 focus:ring-4 focus:ring-red-900'
+          disabled={isPending}
+          className='w-full py-3 text-[#B02D1C] border-[#B02D1C] rounded-md hover:bg-red-50 focus:ring-4 focus:ring-red-900 cursor-pointer'
         >
-          Sign Up
+          {isPending ? 'Registering profile...' : 'Register'}
         </Button>
       </form>
       <div className='static-options'>
@@ -207,4 +177,4 @@ const RegistrationForm = () => {
   );
 };
 
-export default RegistrationForm;
+export default SignupForm;

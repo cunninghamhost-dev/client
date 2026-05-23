@@ -182,7 +182,6 @@ export const ConstantCountries: TCountrySelectProps[] = [
     countryName: 'Sydney',
   },
 ];
-// export const ConstantCountries: TCountrySelectProps[] = [
 //   {
 //     category: {
 //       name: 'Popular Cities',

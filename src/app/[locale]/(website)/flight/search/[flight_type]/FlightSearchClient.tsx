@@ -81,6 +81,7 @@ export default function FlightSearchClient({ locale, flightType }: FlightSearchC
     infants: Number(infant || '0'),
     cabin: cabin,
   });
+  console.log('FlightSearchClient Component', flightList);
 
   const handleConfirm = (flightId: string) => {
     setOpenLoader(true);
@@ -146,7 +147,7 @@ export default function FlightSearchClient({ locale, flightType }: FlightSearchC
           flights={(flightList ?? []).map(mapFlightToDetails)}
           onSelectFlight={handleConfirm}
         /> */}
-      <FlightSearchResults flights={flightList?.data?.result ?? []} onSelectFlight={handleConfirm} />;
+      <FlightSearchResults flights={flightList?.data ?? []} onSelectFlight={handleConfirm} />;
       <GlobalLoadingDialog
         open={openLoader}
         display_text='Confirming Flight Price'

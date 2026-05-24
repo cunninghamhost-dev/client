@@ -6,13 +6,9 @@ import { ApiResponse } from '@/lib/types/server/api_server.type';
 /** ***********************************************
  * Flight Search Service
  * *********************************************** */
-export async function getFlightSerachService(
+export async function getFlightSearchService(
   payload: TTiqwaFlightSearchParams,
-): Promise<ApiResponse<{ result?: FlightDetailsProps[] }>> {
-  // Convert params to Record<string, string | number>
-  const query = Object.fromEntries(Object.entries(payload).filter(([, value]) => value !== undefined));
-  const res = await api.get<ApiResponse<{ result?: FlightDetailsProps[] }>>('/api/flight/search', {
-    params: query,
-  });
+): Promise<ApiResponse< FlightDetailsProps[] >> {
+  const res = await api.post<ApiResponse<FlightDetailsProps[]>>('/api/flights/search', payload);
   return res.data;
 }

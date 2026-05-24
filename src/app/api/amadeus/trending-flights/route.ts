@@ -6,8 +6,8 @@ import { NextRequest, NextResponse } from 'next/server';
 export const runtime = 'nodejs';
 
 const amadeus_connector = new Amadeus({
-  clientId: process.env.AMADEUS_API_KEY,
-  clientSecret: process.env.AMADEUS_API_SECRET,
+  clientId: process.env.AMADEUS_CLIENT_ID || 'DXFeCjzMoG5ilHgB607f256tBVLLNYAk',
+  clientSecret: process.env.AMADEUS_CLIENT_SECRET || 'NrMpPLXm76sInRRW',
 });
 
 async function getTrendingFlights(request: NextRequest) {

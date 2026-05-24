@@ -10,7 +10,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useVerifyOtp } from '@/lib/hooks/auth/useVerifyOtp';
 import { useResendOtp } from '@/lib/hooks/auth/useResendOtp';
 import { motion } from 'framer-motion';
-import OTPInputField from '@/components/custom/OTPInputField';
+import OTPInputCodeField from '@/components/custom/OTPInputCodeField';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -126,7 +126,7 @@ const PasscodeForm = () => {
           onSubmit={handleSubmit(handleSubmitOtp)}
           className={`mt-4 w-full mx-auto space-y-4 ${shake ? 'animate-shake' : ''}`}
         >
-          <OTPInputField value={watch('otp')} onChange={(val) => setValue('otp', val)} shake={shake} autoFocus />
+          <OTPInputCodeField value={watch('otp')} onChange={(val) => setValue('otp', val)} shake={shake} autoFocus />
           {verifyOtpForm.formState.errors.otp && (
             <p className='text-red-500 text-sm text-center'>{verifyOtpForm.formState.errors.otp.message}</p>
           )}
